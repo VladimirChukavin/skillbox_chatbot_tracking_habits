@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "habit-tracker-backend"
+version = "0.1.0"
+description = "FastAPI backend for habit tracking bot"
+authors = ["Master"]
+readme = "README.md"
+packages = [{ include = "app" }]
+
+[tool.poetry.dependencies]
+python = "^3.14"
+fastapi = "^0.141.1"
+uvicorn = { extras = ["standard"], version = "^0.52.1" }
+sqlalchemy = { extras = ["asyncio"], version = "^2.0.51" }
+alembic = "^1.18.5"
+asyncpg = "^0.31.0"
+pydantic = "^2.13.4"
+pydantic-settings = "^2.14.2"
+python-jose = { extras = ["cryptography"], version = "^3.5.0" }
+bcrypt = "^5.0.0"
+python-multipart = "^0.0.32"
+loguru = "^0.7.3"
+pytz = "^2026.3.post1"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.16.1"
+pytest = "^9.1.1"
+httpx = "^0.28.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
