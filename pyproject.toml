@@ -13,6 +13,7 @@ uvicorn = { extras = ["standard"], version = "^0.52.1" }
 sqlalchemy = { extras = ["asyncio"], version = "^2.0.51" }
 alembic = "^1.18.5"
 asyncpg = "^0.31.0"
+psycopg2-binary = "^2.9.12"
 pydantic = "^2.13.4"
 pydantic-settings = "^2.14.2"
 python-jose = { extras = ["cryptography"], version = "^3.5.0" }
