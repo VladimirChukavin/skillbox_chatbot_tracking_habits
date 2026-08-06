@@ -7,8 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from backend.app.database import Base
 
 if TYPE_CHECKING:
-    from backend.app.models.habit_log import HabitLog
-    from backend.app.models.user import User
+    from backend.app.models.habit_log_model import HabitLog
+    from backend.app.models.user_model import User
 
 
 class Habit(Base):
