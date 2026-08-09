@@ -1,5 +1,5 @@
-from .habit import Habit
-from .habit_log import HabitLog
-from .user import User
+from .habit_log_model import HabitLog
+from .habit_model import Habit
+from .user_model import User
 
 __all__ = ["Habit", "HabitLog", "User"]
