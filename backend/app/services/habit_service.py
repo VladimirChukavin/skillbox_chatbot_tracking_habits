@@ -3,10 +3,10 @@ import datetime
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.config import get_settings
-from backend.app.models.habit_model import Habit
-from backend.app.models.habit_log_model import HabitLog
-from backend.app.schemas.habit_schema import HabitCreate, HabitUpdate
+from app.config import get_settings
+from app.models.habit_model import Habit
+from app.models.habit_log_model import HabitLog
+from app.schemas.habit_schema import HabitCreate, HabitUpdate
 
 settings = get_settings()
 
