@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, Time, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.app.database import Base
+from app.database import Base
 
 if TYPE_CHECKING:
     from backend.app.models.habit_log_model import HabitLog
