@@ -4,7 +4,7 @@ from typing import Any
 import bcrypt
 from jose import jwt, JWTError
 
-from backend.app.config import get_settings
+from app.config import get_settings
 
 settings = get_settings()
 
