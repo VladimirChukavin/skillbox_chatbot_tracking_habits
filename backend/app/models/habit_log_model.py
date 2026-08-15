@@ -12,7 +12,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.app.database import Base
+from app.database import Base
 
 if TYPE_CHECKING:
     from backend.app.models.habit_model import Habit
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class HabitLog(Base):
     __tablename__ = "habit_logs"
     __table_args__ = (
-        UniqueConstraint("habit_id", "log_id", name="unique_habit_log_date"),
+        UniqueConstraint("habit_id", "log_date", name="unique_habit_log_date"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
