@@ -1,7 +1,9 @@
+name: habit_tracker
+
 services:
   database:
     image: postgres:18-alpine
-    container_name: habit_db
+    container_name: habit_database
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -22,7 +24,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: backend/Dockerfile
+      dockerfile: Dockerfile
     container_name: habit_backend
     restart: unless-stopped
     env_file:
@@ -43,13 +45,13 @@ services:
   bot:
     build:
       context: ./bot
-      dockerfile: bot/Dockerfile
+      dockerfile: Dockerfile
     container_name: habit_bot
     restart: unless-stopped
     env_file:
       - .env
     volumes:
-      - ./bot:/app
+      - ./bot:/app/bot
       - bot_logs:/app/logs
     depends_on:
       - backend
