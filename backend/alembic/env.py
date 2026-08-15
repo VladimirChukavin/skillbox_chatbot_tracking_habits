@@ -7,9 +7,9 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from backend.app.config import get_settings
-from backend.app.database import Base
-from backend.app.models import User, Habit, HabitLog  # noqa: F401
+from app.config import get_settings
+from app.database import Base
+from app.models import User, Habit, HabitLog  # noqa: F401
 
 config = context.config
 
