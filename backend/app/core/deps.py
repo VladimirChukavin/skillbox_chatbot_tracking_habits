@@ -6,9 +6,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .security import decode_token, extract_token_from_header
-from backend.app.database import get_db_session
-from backend.app.config import get_settings
-from backend.app.models.user_model import User
+from app.database import get_db_session
+from app.config import get_settings
+from app.models.user_model import User
 
 settings = get_settings()
 
