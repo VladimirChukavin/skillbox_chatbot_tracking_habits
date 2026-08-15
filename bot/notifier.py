@@ -3,7 +3,7 @@ import datetime
 
 import requests
 import pytz
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from loguru import logger
 
@@ -15,9 +15,9 @@ class HabitNotifier:
     CARRY_OVER_ENDPOINT = "/habits/internal/carry-over"
     HABITS_ENDPOINT = "/habits/"
 
-    def __init__(self, bot, scheduler: AsyncIOScheduler | None = None) -> None:
+    def __init__(self, bot, scheduler: BackgroundScheduler | None = None) -> None:
         self._bot = bot
-        self._scheduler = scheduler or AsyncIOScheduler(timezone="UTC")
+        self._scheduler = scheduler or BackgroundScheduler(timezone="UTC")
         self._api_base_url = bot_settings.api_base_url.rstrip("/")
 
     def start(self) -> None:
@@ -36,7 +36,7 @@ class HabitNotifier:
         self._scheduler.start()
         logger.info("Планировщик оповещений запущен.")
 
-    async def run_carry_over(self) -> None:
+    def run_carry_over(self) -> None:
         try:
             response = requests.post(
                 f"{self._api_base_url}{self.CARRY_OVER_ENDPOINT}",
@@ -49,7 +49,7 @@ class HabitNotifier:
         except Exception as error:
             logger.exception("Ошибка при переносе привычек: {}", error)
 
-    async def check_and_send_reminders(self) -> None:
+    def check_and_send_reminders(self) -> None:
         now = datetime.datetime.now(pytz.UTC)
         current_time = now.strftime("%H:%M")
         logger.info("Проверка напоминаний для времени {}", current_time)
