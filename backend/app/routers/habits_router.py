@@ -1,17 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.core.deps import get_current_user
-from backend.app.database import get_db_session
-from backend.app.models.user_model import User
-from backend.app.schemas.habit_schema import (
+from app.core.deps import get_current_user
+from app.database import get_db_session
+from app.models.user_model import User
+from app.schemas.habit_schema import (
     HabitCreate,
     HabitUpdate,
     HabitRead,
     HabitStats,
     HabitTrackRequest,
 )
-from backend.app.services.habit_service import (
+from app.services.habit_service import (
     calculate_habit_stats,
     create_habit,
     delete_habit,
