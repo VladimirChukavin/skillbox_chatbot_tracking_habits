@@ -1,5 +1,6 @@
 import threading
 
+import telebot.apihelper
 from telebot import TeleBot
 from loguru import logger
 
@@ -14,7 +15,16 @@ from bot.utils.logger import configure_bot_logger
 
 
 def create_bot() -> TeleBot:
+    proxy = None
+
+    if bot_settings.http_proxy:
+        proxy = bot_settings.http_proxy
+
     bot = TeleBot(bot_settings.telegram_token, use_class_middlewares=True)
+
+    if proxy:
+        telebot.apihelper.proxy = {"http": proxy, "https": proxy}
+
     register_auth_handlers(bot)
     register_habit_handlers(bot)
     register_reminder_handlers(bot)
