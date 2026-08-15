@@ -8,6 +8,8 @@ class BotSettings(BaseSettings):
     api_base_url: str
     request_timeout: int = 15
     debug: bool = False
+    http_proxy: str | None = None
+    https_proxy: str | None = None
 
 
 bot_settings = BotSettings()
