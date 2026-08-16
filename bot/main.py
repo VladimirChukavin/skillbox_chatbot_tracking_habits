@@ -1,8 +1,11 @@
 import threading
+import time
 
 import telebot.apihelper
 from telebot import TeleBot
 from loguru import logger
+from telebot.types import BotCommand
+from requests.exceptions import ConnectionError
 
 from bot.config import bot_settings
 from bot.handlers.auth_handlers import register_auth_handlers
@@ -12,6 +15,17 @@ from bot.handlers.stats_handler import register_stats_handler
 from bot.handlers.tracking_handlers import register_tracking_handlers
 from bot.notifier import HabitNotifier
 from bot.utils.logger import configure_bot_logger
+
+DEFAULT_COMMANDS = (
+    ("start", "Запустить бота"),
+    ("login", "Введите пароль для получения токена на новую сессию"),
+    ("add_habit", "Введите название привычки"),
+    ("habits", "Ваши привычки"),
+    ("edit_habit", "Редактировать привычку"),
+    ("set_reminder", "Установить напоминание"),
+    ("habit_stats", "Статистика привычек"),
+    ("track_habit", "Выберите привычку для трекинга"),
+)
 
 
 def create_bot() -> TeleBot:
@@ -41,12 +55,26 @@ def run_bot() -> None:
 
     logger.info("Запуск Telegram-бота для трекинга привычек.")
 
-    try:
-        bot.infinity_polling(skip_pending=True)
-    except KeyboardInterrupt:
-        logger.error("Остановка бота пользователем.")
-    finally:
-        notifier.stop()
+    bot.set_my_commands([BotCommand(*i) for i in DEFAULT_COMMANDS])
+
+    first_run = True
+    while True:
+        try:
+            bot.infinity_polling(skip_pending=first_run, long_polling_timeout=30)
+            first_run = False
+        except ConnectionError as error:
+            logger.warning("Соединение разорвано, переподключение: {}", error)
+            time.sleep(5)
+            first_run = False
+        except KeyboardInterrupt:
+            logger.error("Остановка бота пользователем.")
+            break
+        except Exception as error:
+            logger.error("Непредвиденная ошибка polling: {}", error)
+            time.sleep(5)
+            first_run = False
+
+    notifier.stop()
 
 
 if __name__ == "__main__":
