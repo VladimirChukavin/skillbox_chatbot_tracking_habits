@@ -67,7 +67,7 @@ class ApiClient:
         bundle = token_storage.get_tokens(telegram_id)
 
         if bundle is None:
-            raise False
+            return False
 
         response = self._session.post(
             f"{self._base_url}/auth/refresh",
