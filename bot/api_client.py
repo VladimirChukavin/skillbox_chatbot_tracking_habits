@@ -12,48 +12,6 @@ class ApiClient:
         self._base_url = base_url.rstrip("/")
         self._session = requests.Session()
 
-    def register_user(
-        self, telegram_id: int, full_name: str, password: str, username: str | None
-    ) -> dict[str, Any] | None:
-        response = self._session.post(
-            f"{self._base_url}/auth/register",
-            json={
-                "telegram_id": telegram_id,
-                "full_name": full_name,
-                "password": password,
-                "username": username,
-            },
-            timeout=bot_settings.request_timeout,
-        )
-
-        if response.status_code == 201:
-            self._store_tokens(telegram_id, response.json())
-            return response.json()
-
-        logger.warning(
-            "Регистрация не удалась: {} {}", response.status_code, response.text
-        )
-
-        return None
-
-    def login_user(self, telegram_id: int, password: str) -> dict[str, Any] | None:
-        response = self._session.post(
-            f"{self._base_url}/auth/login",
-            json={
-                "telegram_id": telegram_id,
-                "password": password,
-            },
-            timeout=bot_settings.request_timeout,
-        )
-
-        if response.status_code == 200:
-            self._store_tokens(telegram_id, response.json())
-            return response.json()
-
-        logger.warning("Логин не удался: {} {}", response.status_code, response.text)
-
-        return None
-
     def _store_tokens(self, telegram_id: int, token_data: dict) -> None:
         token_storage.save_tokens(
             telegram_id,
@@ -117,15 +75,57 @@ class ApiClient:
 
         return response
 
+    def register_user(
+        self, telegram_id: int, full_name: str, password: str, username: str | None
+    ) -> dict[str, Any] | None:
+        response = self._session.post(
+            f"{self._base_url}/auth/register",
+            json={
+                "telegram_id": telegram_id,
+                "full_name": full_name,
+                "password": password,
+                "username": username,
+            },
+            timeout=bot_settings.request_timeout,
+        )
+
+        if response.status_code == 201:
+            self._store_tokens(telegram_id, response.json())
+            return response.json()
+
+        logger.warning(
+            "Регистрация не удалась: {} {}", response.status_code, response.text
+        )
+
+        return None
+
+    def login_user(self, telegram_id: int, password: str) -> dict[str, Any] | None:
+        response = self._session.post(
+            f"{self._base_url}/auth/login",
+            json={
+                "telegram_id": telegram_id,
+                "password": password,
+            },
+            timeout=bot_settings.request_timeout,
+        )
+
+        if response.status_code == 200:
+            self._store_tokens(telegram_id, response.json())
+            return response.json()
+
+        logger.warning("Логин не удался: {} {}", response.status_code, response.text)
+
+        return None
+
     def create_habit(self, telegram_id: int, habit_data: dict) -> dict | None:
         response = self._authorized_request(
-            "POST", telegram_id, "/habits/", json=habit_data
+            "POST", telegram_id, "/habits", json=habit_data
         )
 
         return response.json() if response and response.status_code == 201 else None
 
     def list_habits(self, telegram_id: int) -> list[dict]:
-        response = self._authorized_request("GET", telegram_id, "/habits/")
+        response = self._authorized_request("GET", telegram_id, "/habits")
 
         if response.status_code == 200:
             return response.json()
@@ -133,7 +133,7 @@ class ApiClient:
         return []
 
     def get_habit(self, telegram_id: int, habit_id: int) -> dict | None:
-        response = self._authorized_request("GET", telegram_id, f"/habits/{habit_id}/")
+        response = self._authorized_request("GET", telegram_id, f"/habits/{habit_id}")
 
         return response.json() if response and response.status_code == 200 else None
 
@@ -148,7 +148,7 @@ class ApiClient:
 
     def delete_habit(self, telegram_id: int, habit_id: int) -> bool:
         response = self._authorized_request(
-            "DELETE", telegram_id, f"/habits/{habit_id}/"
+            "DELETE", telegram_id, f"/habits/{habit_id}"
         )
 
         return response is not None and response.status_code == 204
@@ -167,7 +167,7 @@ class ApiClient:
 
     def get_habit_stats(self, telegram_id: int, habit_id: int) -> dict | None:
         response = self._authorized_request(
-            "GET", telegram_id, f"/habits/{habit_id}/stats/"
+            "GET", telegram_id, f"/habits/{habit_id}/stats"
         )
 
         return response.json() if response and response.status_code == 200 else None
