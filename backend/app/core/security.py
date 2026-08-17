@@ -2,7 +2,7 @@ import datetime
 from typing import Any
 
 import bcrypt
-from jose import jwt, JWTError
+from jose import jwt
 
 from app.config import get_settings
 
@@ -23,7 +23,7 @@ def create_token(telegram_id: int, user_id: int, token_type: str = "access") -> 
     if token_type == "access":
         expire = now + datetime.timedelta(minutes=settings.access_token_expire_minutes)
     else:
-        expire = now + datetime.timedelta(minutes=settings.refresh_token_expire_days)
+        expire = now + datetime.timedelta(days=settings.refresh_token_expire_days)
 
     payload: dict[str, Any] = {
         "sub": str(user_id),
@@ -44,10 +44,6 @@ def extract_token_from_header(authorization_header: str) -> str:
     parts = authorization_header.split()
 
     if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise Exception("Некорректный заголовок авторизации")
+        raise ValueError("Некорректный заголовок авторизации")
 
     return parts[1]
-
-
-class TokenValidationError(JWTError):
-    pass
