@@ -21,10 +21,12 @@ from app.services.habit_service import (
     update_habit,
 )
 
+from app.services.habit_service import carry_over_incomplete_habits
+
 router = APIRouter(prefix="/habits", tags=["habits"])
 
 
-@router.post("/", response_model=HabitRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=HabitRead, status_code=status.HTTP_201_CREATED)
 async def create_new_habit(
     payload: HabitCreate,
     current_user: User = Depends(get_current_user),
@@ -34,7 +36,7 @@ async def create_new_habit(
     return HabitRead.model_validate(habit)
 
 
-@router.get("/", response_model=list[HabitRead])
+@router.get("", response_model=list[HabitRead])
 async def list_habits(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db_session),
@@ -132,3 +134,9 @@ async def get_habit_stats(
     stats = await calculate_habit_stats(habit, session)
 
     return HabitStats(**stats)
+
+
+@router.post("/internal/carry-over", status_code=status.HTTP_200_OK)
+async def carry_over_habits(session: AsyncSession = Depends(get_db_session)) -> dict:
+    carried_count = await carry_over_incomplete_habits(session)
+    return {"carried_count": carried_count}
