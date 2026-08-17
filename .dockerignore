@@ -12,6 +12,6 @@ env/
 *.egg-info/
 .pytest_cache/
 .mypy_cache/
-.ruff_cacne/
+.ruff_cache/
 logs/
 *.log
