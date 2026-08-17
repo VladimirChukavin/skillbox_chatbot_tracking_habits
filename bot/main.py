@@ -1,4 +1,3 @@
-import threading
 import time
 
 import telebot.apihelper
