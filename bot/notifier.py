@@ -1,4 +1,3 @@
-import asyncio
 import datetime
 
 import requests
@@ -8,17 +7,16 @@ from apscheduler.triggers.cron import CronTrigger
 from loguru import logger
 
 from bot.config import bot_settings
-from bot.storage import token_storage
 
 
 class HabitNotifier:
     CARRY_OVER_ENDPOINT = "/habits/internal/carry-over"
-    HABITS_ENDPOINT = "/habits/"
 
     def __init__(self, bot, scheduler: BackgroundScheduler | None = None) -> None:
         self._bot = bot
         self._scheduler = scheduler or BackgroundScheduler(timezone="UTC")
         self._api_base_url = bot_settings.api_base_url.rstrip("/")
+        self._session = requests.Session()
 
     def start(self) -> None:
         self._scheduler.add_job(
@@ -38,7 +36,7 @@ class HabitNotifier:
 
     def run_carry_over(self) -> None:
         try:
-            response = requests.post(
+            response = self._session.post(
                 f"{self._api_base_url}{self.CARRY_OVER_ENDPOINT}",
                 timeout=bot_settings.request_timeout,
             )
