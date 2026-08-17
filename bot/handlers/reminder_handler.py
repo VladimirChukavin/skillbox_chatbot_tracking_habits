@@ -47,7 +47,7 @@ def register_reminder_handlers(bot: TeleBot) -> None:
 
         try:
             hours, minutes = (int(part) for part in raw_time.split(":"))
-            if not (0 <= hours < 23 and 0 <= minutes < 59):
+            if not (0 <= hours <= 23 and 0 <= minutes <= 59):
                 raise ValueError
             reminder_time = f"{hours:02d}:{minutes:02d}:00"
         except ValueError:
