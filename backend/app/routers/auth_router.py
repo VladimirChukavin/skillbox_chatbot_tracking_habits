@@ -4,12 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import decode_token
 from app.database import get_db_session
-from app.models.user_model import User
 from app.schemas.token_schema import TokenBundle
-from app.schemas.user_schema import UserCreate, UserRead, UserLogin
+from app.schemas.user_schema import UserCreate, UserLogin
 from app.services.auth_service import authenticate_user, issue_token_bundle
 from app.services.user_service import create_user, get_user_by_telegram_id
-from app.core.exceptions import ConflictError
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
