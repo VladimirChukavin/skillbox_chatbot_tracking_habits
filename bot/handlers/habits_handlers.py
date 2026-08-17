@@ -65,7 +65,7 @@ def register_habit_handlers(bot: TeleBot) -> None:
             message.chat.id,
         )
         bot.send_message(
-            message.from_user.id, "Введите выполнения в днях (по умолчанию 21):"
+            message.from_user.id, "Введите срок выполнения в днях (по умолчанию 21):"
         )
 
     @bot.message_handler(state=AddHabitStates.waiting_for_target_days)
@@ -93,7 +93,7 @@ def register_habit_handlers(bot: TeleBot) -> None:
 
         created = api_client.create_habit(telegram_id, habit_data)
 
-        if created in None:
+        if created is None:
             bot.send_message(
                 telegram_id, "❌ Не удалось создать привычку. Вы авторизованы? /login"
             )
@@ -115,7 +115,7 @@ def register_habit_handlers(bot: TeleBot) -> None:
             )
             return
 
-        text_lines = ["📋 Ваши привычки:*\n"]
+        text_lines = ["📋 Ваши привычки:\n"]
 
         for index, habit in enumerate(habits, start=1):
             text_lines.append(
