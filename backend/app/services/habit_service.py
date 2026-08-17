@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
@@ -150,10 +150,9 @@ async def calculate_habit_stats(habit: Habit, session: AsyncSession) -> dict:
             HabitLog.habit_id == habit.id, HabitLog.log_date == today
         )
     )
-    is_completed_today = (
-        today_log.scalar_one_or_none() is not None
-        and today_log.scalar_one().is_completed
-    )
+    log_entry = today_log.scalar_one_or_none()
+    is_completed_today = log_entry is not None and log_entry.is_completed
+
     progress = (
         (habit.completed_count / habit.target_days) * 100
         if habit.target_days > 0
