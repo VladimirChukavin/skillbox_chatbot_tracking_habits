@@ -33,9 +33,7 @@ class HabitLog(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
-    habit: Mapped["Habit"] = relationship(
-        "Habit", back_populates="logs", cascade="all, delete-orphan"
-    )
+    habit: Mapped["Habit"] = relationship("Habit", back_populates="logs")
 
     def __repr__(self) -> str:
         return f"HabitLog(id={self.id}, habit_id={self.habit_id})"
