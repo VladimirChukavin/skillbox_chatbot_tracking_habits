@@ -11,6 +11,7 @@ class ApiClient:
     def __init__(self, base_url: str) -> None:
         self._base_url = base_url.rstrip("/")
         self._session = requests.Session()
+        self._session.trust_env = False
 
     def _store_tokens(self, telegram_id: int, token_data: dict) -> None:
         token_storage.save_tokens(
