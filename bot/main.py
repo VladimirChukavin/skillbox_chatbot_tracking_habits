@@ -1,7 +1,7 @@
 import time
 
 import telebot.apihelper
-from telebot import TeleBot
+from telebot import TeleBot, custom_filters
 from loguru import logger
 from telebot.types import BotCommand
 from requests.exceptions import ConnectionError
@@ -34,6 +34,7 @@ def create_bot() -> TeleBot:
         proxy = bot_settings.http_proxy
 
     bot = TeleBot(bot_settings.telegram_token, use_class_middlewares=True)
+    bot.add_custom_filter(custom_filters.StateFilter(bot))
 
     if proxy:
         telebot.apihelper.proxy = {"http": proxy, "https": proxy}
