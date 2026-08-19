@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from jose import JWTError
 
 from .security import decode_token
 from app.database import get_db_session
@@ -30,7 +31,7 @@ async def get_current_user(
             raise credentials_exception
 
         telegram_id = int(payload.get("telegram_id"))
-    except (KeyError, ValueError):
+    except (KeyError, ValueError, JWTError):
         raise credentials_exception from None
 
     result = await session.execute(select(User).where(User.telegram_id == telegram_id))
