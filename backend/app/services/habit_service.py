@@ -36,7 +36,7 @@ async def get_habits_by_user(
     if active_only:
         statement = statement.where(Habit.is_active.is_(True))
 
-    statement = statement.order_by(Habit.created_at.desc())
+    statement = statement.order_by(Habit.created_at.asc())
     result = await session.execute(statement)
 
     return list(result.scalars().all())
