@@ -9,4 +9,4 @@ def show_add_habit(bot: TeleBot, telegram_id: int, chat_id: int) -> None:
         return
 
     bot.set_state(telegram_id, AddHabitStates.waiting_for_title, chat_id)
-    bot.send_message(telegram_id, "Введите название привычки:")
+    bot.send_message(chat_id, "Введите название привычки:")
