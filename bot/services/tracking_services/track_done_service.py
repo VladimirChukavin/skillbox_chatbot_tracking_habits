@@ -2,7 +2,7 @@ from loguru import logger
 from telebot import TeleBot
 from telebot.types import CallbackQuery
 
-from bot.api_client import api_client
+from bot.api.api_client import api_client
 
 
 def show_track_done(bot: TeleBot, call: CallbackQuery) -> None:
