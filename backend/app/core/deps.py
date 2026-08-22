@@ -6,10 +6,7 @@ from jose import JWTError
 
 from .security import decode_token
 from app.database import get_db_session
-from app.config import get_settings
 from app.models.user_model import User
-
-settings = get_settings()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
