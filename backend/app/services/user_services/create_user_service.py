@@ -29,19 +29,3 @@ async def create_user(
     await session.flush()
 
     return user
-
-
-async def get_user_by_telegram_id(
-    session: AsyncSession, telegram_id: int
-) -> User | None:
-    result = await session.execute(select(User).where(User.telegram_id == telegram_id))
-    return result.scalar_one_or_none()
-
-
-async def update_refresh_token(
-    session: AsyncSession, user_id: int, refresh_token: str
-) -> None:
-    user = await session.get(User, user_id)
-
-    if user is not None:
-        user.refresh_token = refresh_token
