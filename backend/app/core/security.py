@@ -38,12 +38,3 @@ def create_token(telegram_id: int, user_id: int, token_type: str = "access") -> 
 
 def decode_token(token: str) -> dict[str, Any]:
     return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
-
-
-def extract_token_from_header(authorization_header: str) -> str:
-    parts = authorization_header.split()
-
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise ValueError("Некорректный заголовок авторизации")
-
-    return parts[1]
