@@ -35,7 +35,7 @@ class HabitRead(HabitBase):
 
 class HabitTrackRequest(BaseModel):
     is_completed: bool
-    log_date: datetime.datetime | None = None
+    log_date: datetime.date | None = None
 
 
 class HabitStats(BaseModel):
