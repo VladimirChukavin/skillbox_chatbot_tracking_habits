@@ -15,7 +15,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
 if TYPE_CHECKING:
-    from backend.app.models.habit_model import Habit
+    from app.models.habit_model import Habit
 
 
 class HabitLog(Base):
