@@ -1,5 +1,5 @@
 from telebot import TeleBot
-from telebot.types import Message
+from telebot.types import Message, CallbackQuery
 
 from bot.services.habit_services.add_habit_service import show_add_habit
 from bot.services.habit_services.habit_title_service import show_habit_title
@@ -49,11 +49,11 @@ def register_habit_handlers(bot: TeleBot) -> None:
         show_edit_habit(bot, message.from_user.id, message.chat.id)
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("edit:"))
-    def handle_edit_habit_choice(call) -> None:
+    def handle_edit_habit_choice(call: CallbackQuery) -> None:
         show_edit_habit_choice(bot, call)
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("field:"))
-    def handle_habit_field_choice(call) -> None:
+    def handle_habit_field_choice(call: CallbackQuery) -> None:
         show_habit_field_choice(bot, call)
 
     @bot.message_handler(state=EditHabitStates.waiting_for_new_value)
@@ -61,5 +61,5 @@ def register_habit_handlers(bot: TeleBot) -> None:
         show_habit_new_value(bot, message)
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("menu:"))
-    def handle_menu_navigation(call) -> None:
+    def handle_menu_navigation(call: CallbackQuery) -> None:
         show_habit_menu_navigation(bot, call)
