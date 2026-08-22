@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,6 +12,7 @@ from app.schemas.habit_schema import (
     HabitRead,
     HabitStats,
     HabitTrackRequest,
+    ReminderInfo,
 )
 from app.services.habit_service import (
     calculate_habit_stats,
@@ -19,9 +22,9 @@ from app.services.habit_service import (
     get_habits_by_user,
     track_habit,
     update_habit,
+    carry_over_incomplete_habits,
+    get_habits_by_reminder,
 )
-
-from app.services.habit_service import carry_over_incomplete_habits
 
 router = APIRouter(prefix="/habits", tags=["habits"])
 
@@ -32,7 +35,7 @@ async def create_new_habit(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> HabitRead:
-    habit = await create_habit(session, current_user.id, payload)
+    habit = await create_habit(session, current_user.id, payload, current_user)
     return HabitRead.model_validate(habit)
 
 
@@ -77,7 +80,7 @@ async def edit_habit(
             detail="Привычка не найдена",
         )
 
-    updated = await update_habit(session, habit, payload)
+    updated = await update_habit(session, habit, payload, current_user)
 
     return HabitRead.model_validate(updated)
 
@@ -140,3 +143,20 @@ async def get_habit_stats(
 async def carry_over_habits(session: AsyncSession = Depends(get_db_session)) -> dict:
     carried_count = await carry_over_incomplete_habits(session)
     return {"carried_count": carried_count}
+
+
+@router.get("/internal/reminders", response_model=list[ReminderInfo])
+async def get_reminders(
+    time: str, session: AsyncSession = Depends(get_db_session)
+) -> list[ReminderInfo]:
+    try:
+        hours, minutes = (int(part) for part in time.split(":"))
+        reminder_time = datetime.time(hour=hours, minute=minutes)
+    except (ValueError, TypeError):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="time должен быть в формате ЧЧ:ММ",
+        )
+
+    reminders = await get_habits_by_reminder(session, reminder_time)
+    return [ReminderInfo(**rem) for rem in reminders]
