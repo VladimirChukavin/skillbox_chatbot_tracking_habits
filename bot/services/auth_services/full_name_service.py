@@ -5,7 +5,7 @@ from bot.states import RegistrationStates
 
 
 def show_full_name(bot: TeleBot, message: Message) -> None:
-    full_name = message.text.strip()
+    full_name = message.text.strip() if message.text else ""
 
     if not full_name:
         bot.send_message(
