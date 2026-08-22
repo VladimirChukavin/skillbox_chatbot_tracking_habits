@@ -1,5 +1,5 @@
 from telebot import TeleBot
-from telebot.types import Message
+from telebot.types import Message, CallbackQuery
 
 from bot.services.tracking_services.track_habit_service import show_track_habit
 from bot.services.tracking_services.track_choice_service import show_track_choice
@@ -13,13 +13,13 @@ def register_tracking_handlers(bot: TeleBot) -> None:
         show_track_habit(bot, message.from_user.id, message.chat.id)
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("track:"))
-    def handle_track_choice(call) -> None:
+    def handle_track_choice(call: CallbackQuery) -> None:
         show_track_choice(bot, call)
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("track_done:"))
-    def handle_track_done(call) -> None:
+    def handle_track_done(call: CallbackQuery) -> None:
         show_track_done(bot, call)
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("track_skip:"))
-    def handle_track_skip(call) -> None:
+    def handle_track_skip(call: CallbackQuery) -> None:
         show_track_skip(bot, call)
