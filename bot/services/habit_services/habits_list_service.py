@@ -1,6 +1,6 @@
 from telebot import TeleBot
 
-from bot.api_client import api_client
+from bot.api.api_client import api_client
 
 
 def show_habits_list(bot: TeleBot, telegram_id: int, chat_id: int) -> None:
@@ -20,4 +20,4 @@ def show_habits_list(bot: TeleBot, telegram_id: int, chat_id: int) -> None:
             f"{habit['target_days']}"
         )
 
-    bot.send_message(telegram_id, "\n".join(text_lines), parse_mode="Markdown")
+    bot.send_message(telegram_id, "\n".join(text_lines))
