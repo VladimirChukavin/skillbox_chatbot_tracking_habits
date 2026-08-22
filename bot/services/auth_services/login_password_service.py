@@ -2,8 +2,8 @@ from loguru import logger
 from telebot import TeleBot
 from telebot.types import Message
 
-from bot.api_client import api_client
-from bot.keyboards import build_main_menu_keyboard
+from bot.api.api_client import api_client
+from bot.keyboards.main_menu_keyboard import build_main_menu_keyboard
 
 
 def show_login_password(bot: TeleBot, message: Message) -> None:
@@ -30,6 +30,7 @@ def show_login_password(bot: TeleBot, message: Message) -> None:
         return
 
     logger.bind(sent_message=True).info("Пользователь {} выполнил вход", telegram_id)
+
     bot.send_message(
         telegram_id,
         "✅ Вход выполнен, токен получен. Меню доступно.",
