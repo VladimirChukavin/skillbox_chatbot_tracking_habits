@@ -2,7 +2,7 @@ from loguru import logger
 from telebot import TeleBot
 from telebot.types import Message
 
-from bot.api_client import api_client
+from bot.api.api_client import api_client
 
 
 def show_reminder_time(bot: TeleBot, message: Message) -> None:
@@ -26,7 +26,7 @@ def show_reminder_time(bot: TeleBot, message: Message) -> None:
 
     bot.delete_state(telegram_id, message.chat.id)
 
-    if not habit_id:
+    if habit_id is None:
         bot.send_message(telegram_id, "Ошибка состояния. Начните заново /set_reminder")
         return
 
