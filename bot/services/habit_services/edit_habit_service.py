@@ -1,8 +1,7 @@
 from telebot import TeleBot
-from telebot.types import Message
 
-from bot.api_client import api_client
-from bot.keyboards import build_habits_keyboard
+from bot.api.api_client import api_client
+from bot.keyboards.habits_keyboard import build_habits_keyboard
 from bot.states import EditHabitStates
 
 
@@ -18,9 +17,9 @@ def show_edit_habit(bot: TeleBot, telegram_id: int, chat_id: int) -> None:
         EditHabitStates.waiting_for_habit_choice,
         chat_id,
     )
-    keyboard = build_habits_keyboard(habits, callback_prefix="edit")
+
     bot.send_message(
-        telegram_id,
+        chat_id,
         "Выберите привычку:",
-        reply_markup=keyboard,
+        reply_markup=build_habits_keyboard(habits, callback_prefix="edit"),
     )
