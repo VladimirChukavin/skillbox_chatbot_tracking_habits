@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from loguru import logger
 
 from .config import get_settings
-from .routers import auth_router, habits_router, user_router
+
+from .api.router import main_router
 from .utils.logger import configure_logger
 
 settings = get_settings()
@@ -25,10 +26,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-
-app.include_router(auth_router.router)
-app.include_router(habits_router.router)
-app.include_router(user_router.router)
+app.include_router(main_router)
 
 
 @app.get("/health", tags=["service"])
