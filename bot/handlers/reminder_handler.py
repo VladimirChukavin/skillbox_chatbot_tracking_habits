@@ -1,5 +1,5 @@
 from telebot import TeleBot
-from telebot.types import Message
+from telebot.types import Message, CallbackQuery
 
 from bot.services.reminder_services.set_reminder_service import show_set_reminder
 from bot.services.reminder_services.reminder_choice_service import show_reminder_choice
@@ -13,7 +13,7 @@ def register_reminder_handlers(bot: TeleBot) -> None:
         show_set_reminder(bot, message.from_user.id, message.chat.id)
 
     @bot.callback_query_handler(func=lambda call: call.data.startswith("reminder:"))
-    def handle_reminder_choice(call) -> None:
+    def handle_reminder_choice(call: CallbackQuery) -> None:
         show_reminder_choice(bot, call)
 
     @bot.message_handler(state=ReminderStates.waiting_for_time)
