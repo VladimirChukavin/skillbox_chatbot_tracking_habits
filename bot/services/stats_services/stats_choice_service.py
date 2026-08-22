@@ -1,7 +1,7 @@
 from telebot import TeleBot
 from telebot.types import CallbackQuery
 
-from bot.api_client import api_client
+from bot.api.api_client import api_client
 
 
 def show_stats_choice(bot: TeleBot, call: CallbackQuery) -> None:
@@ -28,5 +28,4 @@ def show_stats_choice(bot: TeleBot, call: CallbackQuery) -> None:
         text,
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,
-        parse_mode="Markdown",
     )
