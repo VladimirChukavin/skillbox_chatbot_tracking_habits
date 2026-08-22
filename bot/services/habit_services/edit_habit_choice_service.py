@@ -1,7 +1,7 @@
 from telebot import TeleBot
 from telebot.types import CallbackQuery
 
-from bot.keyboards import build_edit_fields_keyboard
+from bot.keyboards.edit_fields_keyboard import build_edit_fields_keyboard
 from bot.states import EditHabitStates
 
 
