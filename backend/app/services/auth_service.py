@@ -2,7 +2,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import create_token, verify_password
 from app.models.user_model import User
-from .user_service import get_user_by_telegram_id, update_refresh_token
+from app.services.user_services.get_user_by_telegram_id_service import (
+    get_user_by_telegram_id,
+)
+from app.services.user_services.update_refresh_token_service import update_refresh_token
 
 
 async def authenticate_user(
