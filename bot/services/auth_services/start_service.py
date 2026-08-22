@@ -1,7 +1,7 @@
 from telebot import TeleBot
 from telebot.types import Message
 
-from bot.keyboards import build_main_menu_keyboard
+from bot.keyboards.main_menu_keyboard import build_main_menu_keyboard
 from bot.states import RegistrationStates
 from bot.storage import token_storage
 
