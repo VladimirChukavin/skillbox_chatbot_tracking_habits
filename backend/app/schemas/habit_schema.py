@@ -45,3 +45,9 @@ class HabitStats(BaseModel):
     target_days: int
     progress_percent: float
     is_completed_today: bool
+
+
+class ReminderInfo(BaseModel):
+    telegram_id: int
+    habit_id: int
+    title: str
