@@ -3,6 +3,7 @@ from telebot import TeleBot
 from telebot.types import CallbackQuery
 
 from bot.services.habit_services.add_habit_service import show_add_habit
+from bot.services.habit_services.delete_habit_service import show_delete_habit
 from bot.services.habit_services.habits_list_service import show_habits_list
 from bot.services.habit_services.edit_habit_service import show_edit_habit
 from bot.services.stats_services.habit_stats_service import show_habit_stats
@@ -22,6 +23,7 @@ def show_habit_menu_navigation(bot: TeleBot, call: CallbackQuery) -> None:
         "stats": (show_habit_stats, bot, telegram_id, chat_id),
         "track": (show_track_habit, bot, telegram_id, chat_id),
         "reminder": (show_set_reminder, bot, telegram_id, chat_id),
+        "delete": (show_delete_habit, bot, telegram_id, chat_id),
     }
 
     command_data = commands_map.get(action)
