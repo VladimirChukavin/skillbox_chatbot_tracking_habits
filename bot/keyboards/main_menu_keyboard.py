@@ -15,5 +15,6 @@ def build_main_menu_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="✅ Отметить", callback_data="menu:track"),
         InlineKeyboardButton(text="⏰ Напоминание", callback_data="menu:reminder"),
     )
+    keyboard.row(InlineKeyboardButton(text="❌ Удалить", callback_data="menu:delete"))
 
     return keyboard
