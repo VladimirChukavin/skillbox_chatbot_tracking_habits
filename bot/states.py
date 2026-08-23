@@ -30,3 +30,7 @@ class ReminderStates(StatesGroup):
 
 class LoginStates(StatesGroup):
     waiting_for_password = State()
+
+
+class DeleteHabitsStates(StatesGroup):
+    waiting_for_habit_choice = State()
