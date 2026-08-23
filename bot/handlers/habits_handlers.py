@@ -2,6 +2,10 @@ from telebot import TeleBot
 from telebot.types import Message, CallbackQuery
 
 from bot.services.habit_services.add_habit_service import show_add_habit
+from bot.services.habit_services.delete_habit_choice_service import (
+    show_delete_habit_choice,
+)
+from bot.services.habit_services.delete_habit_service import show_delete_habit
 from bot.services.habit_services.habit_title_service import show_habit_title
 from bot.services.habit_services.habit_description_service import show_habit_description
 from bot.services.habit_services.habit_target_service import show_habit_target
@@ -63,3 +67,11 @@ def register_habit_handlers(bot: TeleBot) -> None:
     @bot.callback_query_handler(func=lambda call: call.data.startswith("menu:"))
     def handle_menu_navigation(call: CallbackQuery) -> None:
         show_habit_menu_navigation(bot, call)
+
+    @bot.message_handler(commands=["delete_habit"])
+    def handle_delete_habit(message: Message) -> None:
+        show_delete_habit(bot, message.from_user.id, message.chat.id)
+
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("delete:"))
+    def handle_delete_habit_choice(call: CallbackQuery) -> None:
+        show_delete_habit_choice(bot, call)
