@@ -1,3 +1,10 @@
+"""
+Роутер для регистрации новых пользователей.
+
+Обеспечивает endpoint для создания учётной записи пользователя
+и немедленной выдачи пары JWT-токенов (access и refresh).
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,6 +23,23 @@ router = APIRouter()
 async def user_register(
     payload: UserCreate, session: AsyncSession = Depends(get_db_session)
 ) -> dict:
+    """
+    Зарегистрировать нового пользователя.
+
+    Принимает данные пользователя (Telegram ID, имя, пароль, username)
+    в формате JSON. Пароль хешируется перед сохранением в БД. При успехе
+    возвращает созданному пользователю пару access/refresh токенов.
+
+    :param payload: Данные для создания пользователя
+    :type payload: UserCreate
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :raises HTTPException: 409 — если пользователь с указанным
+        telegram_id уже существует
+    :return: Словарь с access и refresh токенами
+    :rtype: dict
+    """
+
     try:
         user = await create_user(
             session=session,
