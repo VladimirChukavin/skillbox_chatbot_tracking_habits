@@ -1,3 +1,10 @@
+"""
+Сервис для регистрации (создания) нового пользователя.
+
+Содержит функцию для добавления пользователя в базу данных с предварительной
+проверкой уникальности Telegram ID и хешированием пароля.
+"""
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,6 +19,27 @@ async def create_user(
     password: str,
     username: str | None = None,
 ) -> User:
+    """
+    Создать нового пользователя в базе данных.
+
+    Перед созданием проверяет, существует ли уже пользователь с указанным
+    telegram_id. Пароль хешируется с помощью bcrypt перед сохранением.
+
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :param telegram_id: Уникальный Telegram ID пользователя
+    :type telegram_id: int
+    :param full_name: Полное имя пользователя
+    :type full_name: str
+    :param password: Пароль в открытом виде (будет хеширован)
+    :type password: str
+    :param username: Имя пользователя в Telegram (опционально)
+    :type username: str | None
+    :raises ValueError: Если пользователь с таким telegram_id уже существует
+    :return: Созданный объект пользователя
+    :rtype: User
+    """
+
     existing = await session.execute(
         select(User).where(User.telegram_id == telegram_id)
     )
