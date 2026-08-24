@@ -1,3 +1,10 @@
+"""
+Сервис для получения привычек по времени напоминания.
+
+Содержит функцию для поиска активных привычек, требующих отправки
+уведомления в указанное время.
+"""
+
 import datetime
 
 import sqlalchemy
@@ -11,6 +18,22 @@ from app.models import User
 async def get_habits_by_reminder(
     session: AsyncSession, reminder_time: datetime.time
 ) -> list[dict]:
+    """
+    Получить активные привычки для напоминания на указанное время.
+
+    Выполняет поиск привычек, у которых часы и минуты времени напоминания
+    совпадают с переданным значением. Использует соединение с таблицей
+    пользователей для получения telegram_id, необходимого боту
+    для отправки уведомления.
+
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :param reminder_time: Время напоминания (часы и минуты) в UTC
+    :type reminder_time: datetime.time
+    :return: Список словарей с ключами telegram_id, habit_id и title
+    :rtype: list[dict]
+    """
+
     statement = (
         select(Habit, User.telegram_id)
         .join(User, Habit.user_id == User.id)
