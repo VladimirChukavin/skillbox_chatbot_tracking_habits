@@ -1,3 +1,10 @@
+"""
+Модель SQLAlchemy для логов выполнения привычек.
+
+Описывает таблицу habit_logs, которая хранит историю ежедневных
+отметок выполнения или невыполнения привычек пользователя.
+"""
+
 import datetime
 from typing import TYPE_CHECKING
 
@@ -19,6 +26,20 @@ if TYPE_CHECKING:
 
 
 class HabitLog(Base):
+    """
+    Модель лога выполнения привычки за определённый день.
+
+    Гарантирует, что для одной привычки может быть только одна запись
+    в день (используя уникальное ограничение).
+
+    :param id: Первичный ключ
+    :param habit_id: ID привычки (внешний ключ на habits.id)
+    :param log_date: Дата отметки выполнения
+    :param is_completed: Статус выполнения (True/False)
+    :param created_at: Дата и время создания записи
+    :param habit: Объект связанной модели Habit
+    """
+
     __tablename__ = "habit_logs"
     __table_args__ = (
         UniqueConstraint("habit_id", "log_date", name="unique_habit_log_date"),
@@ -36,4 +57,11 @@ class HabitLog(Base):
     habit: Mapped["Habit"] = relationship("Habit", back_populates="logs")
 
     def __repr__(self) -> str:
+        """
+        Возвращает строковое представление объекта лога.
+
+        :return: Форматированная строка с ID лога и ID привычки
+        :rtype: str
+        """
+
         return f"HabitLog(id={self.id}, habit_id={self.habit_id})"
