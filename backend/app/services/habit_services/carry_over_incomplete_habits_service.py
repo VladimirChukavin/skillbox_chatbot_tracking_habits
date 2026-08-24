@@ -1,3 +1,10 @@
+"""
+Сервис для автоматического переноса невыполненных привычек.
+
+Содержит функцию, которая запускается по расписанию в конце дня
+для создания записей о невыполнении активных привычек.
+"""
+
 import datetime
 
 from sqlalchemy import select
@@ -8,6 +15,20 @@ from app.models.habit_log_model import HabitLog
 
 
 async def carry_over_incomplete_habits(session: AsyncSession) -> int:
+    """
+    Перенести невыполненные за сегодня привычки на следующий день.
+
+    Находит все активные привычки, по которым нет отметки о выполнении
+    за текущий день. Для каждой такой привычки:
+    - Деактивирует её, если цель достигнута (completed_count >= target_days).
+    - Создаёт запись в логе с is_completed=False, если лога за сегодня нет.
+
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :return: Количество созданных записей о невыполнении
+    :rtype: int
+    """
+
     today = datetime.date.today()
     carried_count = 0
 
