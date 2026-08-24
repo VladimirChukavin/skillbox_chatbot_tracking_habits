@@ -1,3 +1,10 @@
+"""
+Точка входа для FastAPI-приложения бэкенда.
+
+Содержит инициализацию приложения, настройку логирования через lifespan,
+подключение основного роутера и health-check endpoint.
+"""
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -13,6 +20,16 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    Контекстный менеджер жизненного цикла приложения.
+
+    Выполняет настройку логгера при запуске и логирует остановку при завершении.
+
+    :param app: Экземпляр приложения FastAPI
+    :type app: FastAPI
+    :yield: Передает управление приложению во время его работы
+    """
+
     configure_logger(debug=settings.debug)
     logger.info("Запуск FastAPI-приложения для трекинга привычек")
     yield
@@ -31,4 +48,13 @@ app.include_router(main_router)
 
 @app.get("/health", tags=["service"])
 async def check_health() -> dict[str, str]:
+    """
+    Проверить работоспособность приложения.
+
+    Используется для health-checks (например, в Docker Compose).
+
+    :return: Словарь со статусом приложения
+    :rtype: dict[str, str]
+    """
+
     return {"status": "ok"}
