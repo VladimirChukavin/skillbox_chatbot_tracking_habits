@@ -1,3 +1,10 @@
+"""
+Сервис для отметки выполнения привычки.
+
+Содержит функцию для создания или обновления лога выполнения привычки
+за определённый день с автоматической корректировкой счётчика выполнений.
+"""
+
 import datetime
 
 from sqlalchemy import select
@@ -13,6 +20,25 @@ async def track_habit(
     is_completed: bool,
     log_date: datetime.date | None = None,
 ) -> HabitLog:
+    """
+    Отметить выполнение привычки за указанный день.
+
+    Если запись за этот день уже существует, обновляет её статус.
+    При изменении статуса корректирует счётчик выполненных дней completed_count
+    у привычки: увеличивает при отметке выполнения или уменьшает при отмене.
+
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :param habit: Объект привычки для отметки
+    :type habit: Habit
+    :param is_completed: Статус выполнения (True — выполнено, False — нет)
+    :type is_completed: bool
+    :param log_date: Дата отметки (по умолчанию текущий день)
+    :type log_date: datetime.date | None
+    :return: Объект записи лога выполнения
+    :rtype: HabitLog
+    """
+
     target_date = log_date or datetime.date.today()
     result = await session.execute(
         select(HabitLog).where(
