@@ -1,3 +1,10 @@
+"""
+Модель SQLAlchemy для пользователей.
+
+Описывает таблицу users, которая хранит учётные данные пользователей,
+их часовые пояса и refresh-токены для авторизации.
+"""
+
 import datetime
 from typing import TYPE_CHECKING
 
@@ -11,6 +18,20 @@ if TYPE_CHECKING:
 
 
 class User(Base):
+    """
+    Модель пользователя приложения.
+
+    :param id: Первичный ключ
+    :param telegram_id: Уникальный Telegram ID пользователя
+    :param username: Имя пользователя в Telegram (опционально)
+    :param full_name: Полное имя пользователя
+    :param hashed_password: Хешированный пароль
+    :param timezone: Часовой пояс пользователя (по умолчанию "UTC")
+    :param refresh_token: JWT refresh-токен для обновления access-токена (опционально)
+    :param created_at: Дата и время регистрации пользователя
+    :param habits: Список объектов связанных привычек Habit
+    """
+
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -28,4 +49,11 @@ class User(Base):
     )
 
     def __repr__(self) -> str:
+        """
+        Возвращает строковое представление объекта пользователя.
+
+        :return: Форматированная строка с username и полным именем
+        :rtype: str
+        """
+
         return f"User(username={self.username}, full_name={self.full_name})"
