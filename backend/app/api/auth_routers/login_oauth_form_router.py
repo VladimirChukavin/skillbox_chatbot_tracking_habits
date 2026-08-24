@@ -1,3 +1,10 @@
+"""
+Роутер для OAuth2-аутентификации пользователя.
+
+Обеспечивает endpoint для входа через стандартную OAuth2 форму,
+совместимую с OpenAPI/Swagger UI.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +21,23 @@ async def login_oauth_form(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: AsyncSession = Depends(get_db_session),
 ) -> dict:
+    """
+    Аутентифицировать пользователя через OAuth2 форму.
+
+    Принимает данные в формате application/x-www-form-urlencoded,
+    где username — числовой Telegram ID, password — пароль.
+    Используется для интеграции со Swagger UI (кнопка Authorize).
+
+    :param form_data: Данные OAuth2 формы (username, password)
+    :type form_data: OAuth2PasswordRequestForm
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :raises HTTPException: 422 — если username не является числом
+    :raises HTTPException: 401 — если неверный Telegram ID или пароль
+    :return: Словарь с access и refresh токенами
+    :rtype: dict
+    """
+
     try:
         telegram_id = int(form_data.username)
     except ValueError as error:
