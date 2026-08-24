@@ -1,3 +1,10 @@
+"""
+Сервис для расчёта статистики выполнения привычки.
+
+Содержит функцию для вычисления текущего прогресса пользователя
+по конкретной привычке.
+"""
+
 import datetime
 
 from sqlalchemy import select
@@ -8,6 +15,21 @@ from app.models.habit_log_model import HabitLog
 
 
 async def calculate_habit_stats(habit: Habit, session: AsyncSession) -> dict:
+    """
+    Рассчитать статистику выполнения привычки за текущий день.
+
+    Проверяет наличие записи о выполнении за сегодняшний день и вычисляет
+    процент выполнения цели.
+
+    :param habit: Объект привычки, для которой считается статистика
+    :type habit: Habit
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :return: Словарь со статистикой (habit_id, title, completed_count,
+        target_days, progress_percent, is_completed_today)
+    :rtype: dict
+    """
+
     today = datetime.date.today()
     today_log = await session.execute(
         select(HabitLog).where(
