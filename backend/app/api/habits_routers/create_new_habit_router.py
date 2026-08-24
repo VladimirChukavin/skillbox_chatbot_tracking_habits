@@ -1,3 +1,10 @@
+"""
+Роутер для создания новой привычки.
+
+Обеспечивает endpoint для авторизованных пользователей, позволяющий
+создать новую привычку с указанием названия, описания, цели и времени напоминания.
+"""
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,5 +23,20 @@ async def create_new_habit(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> HabitRead:
+    """
+    Создать новую привычку для текущего пользователя.
+
+    Принимает данные привычки в формате JSON.
+
+    :param payload: Данные для создания привычки (название, описание, цель, срок, напоминание)
+    :type payload: HabitCreate
+    :param current_user: Текущий авторизованный пользователь
+    :type current_user: User
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :return: Созданная привычка
+    :rtype: HabitRead
+    """
+
     habit = await create_habit(session, current_user.id, payload, current_user)
     return HabitRead.model_validate(habit)
