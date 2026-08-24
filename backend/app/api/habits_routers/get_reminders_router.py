@@ -1,3 +1,11 @@
+"""
+Роутер для получения привычек, требующих напоминания.
+
+Обеспечивает внутренний endpoint для бота, который используется
+планировщиком (APScheduler) каждую минуту для поиска привычек,
+подлежащих уведомлению в заданное время.
+"""
+
 import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -16,6 +24,22 @@ router = APIRouter()
 async def get_reminders(
     time: str, session: AsyncSession = Depends(get_db_session)
 ) -> list[ReminderInfo]:
+    """
+    Получить список активных привычек для напоминания на указанное время.
+
+    Принимает время в формате ЧЧ:ММ (UTC) в качестве query-параметра.
+    Выполняет поиск в БД активных привычек, у которых часы и минуты
+    reminder_time совпадают с переданным значением.
+
+    :param time: Время напоминания в формате ЧЧ:ММ (UTC)
+    :type time: str
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :raises HTTPException: 422 — если параметр time не соответствует формату ЧЧ:ММ
+    :return: Список объектов ReminderInfo
+    :rtype: list[ReminderInfo]
+    """
+
     try:
         hours, minutes = (int(part) for part in time.split(":"))
         reminder_time = datetime.time(hour=hours, minute=minutes)
