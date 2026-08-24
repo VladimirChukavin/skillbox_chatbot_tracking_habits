@@ -1,3 +1,10 @@
+"""
+Сервис для создания новой привычки.
+
+Содержит функцию для добавления привычки в базу данных с учётом
+часового пояса пользователя при установке времени напоминания.
+"""
+
 import datetime
 from zoneinfo import ZoneInfo
 
@@ -11,6 +18,25 @@ from app.schemas.habit_schema import HabitCreate
 async def create_habit(
     session: AsyncSession, user_id: int, payload: HabitCreate, user: User
 ) -> Habit:
+    """
+    Создать новую привычку для пользователя.
+
+    Если в данных передано время напоминания reminder_time, оно
+    конвертируется из локального часового пояса пользователя в UTC
+    перед сохранением в базу данных.
+
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :param user_id: Идентификатор пользователя
+    :type user_id: int
+    :param payload: Данные для создания привычки
+    :type payload: HabitCreate
+    :param user: Объект пользователя (для получения часового пояса)
+    :type user: User
+    :return: Созданный объект привычки
+    :rtype: Habit
+    """
+
     reminder_time = payload.reminder_time
 
     if reminder_time is not None:
