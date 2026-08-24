@@ -1,3 +1,10 @@
+"""
+Роутер для отметки выполнения привычки.
+
+Обеспечивает endpoint для фиксации факта выполнения или невыполнения
+привычки в определённый день.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,6 +25,26 @@ async def track_habit_completion(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> HabitRead:
+    """
+    Отметить выполнение привычки за текущий или указанный день.
+
+    Создаёт или обновляет запись в логе выполнения HabitLog для
+    заданной привычки. При изменении статуса корректирует счётчик
+    выполненных дней completed_count.
+
+    :param habit_id: ID привычки для отметки
+    :type habit_id: int
+    :param payload: Данные отметки (статус выполнения и опциональная дата)
+    :type payload: HabitTrackRequest
+    :param current_user: Текущий авторизованный пользователь
+    :type current_user: User
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :raises HTTPException: 404 — если привычка не найдена или не принадлежит пользователю
+    :return: Обновлённая привычка с актуальным счётчиком выполнений
+    :rtype: HabitRead
+    """
+
     habit = await get_habit_by_id(session, habit_id, current_user.id)
 
     if habit is None:
