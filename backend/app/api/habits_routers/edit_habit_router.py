@@ -1,3 +1,10 @@
+"""
+Роутер для редактирования существующей привычки.
+
+Обеспечивает endpoint для частичного обновления данных привычки
+(название, описание, цели, время напоминания, статус активности).
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,6 +25,24 @@ async def edit_habit(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> HabitRead:
+    """
+    Частично обновить данные привычки текущего пользователя.
+
+    Принимает только те поля, которые нужно обновить (формат JSON).
+    Проверяет принадлежность привычки текущему пользователю.
+
+    :param habit_id: ID редактируемой привычки
+    :type habit_id: int
+    :param payload: Поля для обновления (только переданные поля будут изменены)
+    :type payload: HabitUpdate
+    :param current_user: Текущий авторизованный пользователь
+    :type current_user: User
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :return: Обновлённая привычка
+    :rtype: HabitRead
+    """
+
     habit = await get_habit_by_id(session, habit_id, current_user.id)
 
     if habit is None:
