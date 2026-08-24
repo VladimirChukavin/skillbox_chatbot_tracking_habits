@@ -1,3 +1,10 @@
+"""
+Зависимости (Dependencies) для FastAPI.
+
+Содержит функции, используемые в маршрутах для извлечения и проверки
+учётных данных, а также получения объекта текущего пользователя из БД.
+"""
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
@@ -15,6 +22,23 @@ async def get_current_user(
     token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(get_db_session),
 ) -> User:
+    """
+    Получить и проверить текущего авторизованного пользователя.
+
+    Декодирует переданный access-токен, проверяет его тип и извлекает
+    telegram_id. Затем ищет пользователя в базе данных. Если токен
+    недействителен или пользователь не найден, выбрасывает исключение 401.
+
+    :param token: JWT access-токен из заголовка Authorization
+    :type token: str
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :raises HTTPException: 401 — если токен недействителен, неверного типа
+        или пользователь не найден
+    :return: Объект модели текущего пользователя
+    :rtype: User
+    """
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Не удалось проверить учетные данные",
