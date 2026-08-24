@@ -1,3 +1,10 @@
+"""
+Роутер для удаления привычки.
+
+Обеспечивает endpoint для полного удаления привычки текущего пользователя
+из базы данных.
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,6 +23,24 @@ async def remove_habit(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> None:
+    """
+    Удалить привычку текущего пользователя.
+
+    Безвозвратно удаляет привычку и все связанные с ней логи выполнения
+    (благодаря каскадному удалению на уровне БД). Перед удалением проверяет
+    принадлежность привычки текущему пользователю.
+
+    :param habit_id: ID удаляемой привычки
+    :type habit_id: int
+    :param current_user: Текущий авторизованный пользователь
+    :type current_user: User
+    :param session: Асинхронная сессия БД
+    :type session: AsyncSession
+    :raises HTTPException: 404 — если привычка не найдена или не принадлежит пользователю
+    :return: Ничего не возвращает (статус 204 No Content)
+    :rtype: None
+    """
+
     habit = await get_habit_by_id(session, habit_id, current_user.id)
 
     if habit is None:
