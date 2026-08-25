@@ -1,3 +1,11 @@
+"""
+Сервис для выполнения авторизованных HTTP-запросов к API бэкенда.
+
+Содержит функцию, которая автоматически добавляет JWT-токен к запросам
+и обрабатывает истечение срока действия access-токена (обновляя его
+с помощью refresh-токена).
+"""
+
 from typing import Any
 
 from requests import Response, Session
@@ -16,6 +24,29 @@ def _authorized_request(
     endpoint: str,
     **kwargs: Any,
 ) -> Response | None:
+    """
+    Выполнить HTTP-запрос к защищённому эндпоинту API.
+
+    Добавляет заголовок Authorization: Bearer <token>. Если бэкенд
+    возвращает статус 401 (Unauthorized), пытается обновить access-токен
+    с помощью refresh-токена и повторить запрос.
+
+    :param session: Сессия requests для переиспользования соединений
+    :type session: Session
+    :param base_url: Базовый URL API бэкенда
+    :type base_url: str
+    :param method: HTTP-метод (GET, POST, PATCH, DELETE)
+    :type method: str
+    :param telegram_id: Telegram ID пользователя для поиска токенов
+    :type telegram_id: int
+    :param endpoint: Путь эндпоинта (например, "/habits")
+    :type endpoint: str
+    :param kwargs: Дополнительные параметры для requests (json, params и т.д.)
+    :raises Exception: При ошибках сети (не перехватываются здесь)
+    :return: Объект ответа Response или None, если нет сохраненных токенов
+    :rtype: Response | None
+    """
+
     bundle = token_storage.get_tokens(telegram_id)
 
     if bundle is None:
