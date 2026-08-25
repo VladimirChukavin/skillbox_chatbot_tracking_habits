@@ -1,3 +1,10 @@
+"""
+Сервис для обработки ввода полного имени при регистрации.
+
+Содержит функцию, которая сохраняет введённое имя в состоянии FSM
+и переводит пользователя к следующему шагу (ввод пароля).
+"""
+
 from telebot import TeleBot
 from telebot.types import Message
 
@@ -5,6 +12,20 @@ from bot.states import RegistrationStates
 
 
 def show_full_name(bot: TeleBot, message: Message) -> None:
+    """
+    Обработать ввод полного имени пользователя при регистрации.
+
+    Проверяет, что имя не пустое. Сохраняет имя в данных состояния (FSM)
+    и переводит пользователя в состояние ожидания пароля.
+
+    :param bot: Экземпляр Telegram-бота
+    :type bot: TeleBot
+    :param message: Входящее сообщение с именем пользователя
+    :type message: Message
+    :return: Ничего не возвращает
+    :rtype: None
+    """
+
     full_name = message.text.strip() if message.text else ""
 
     if not full_name:
