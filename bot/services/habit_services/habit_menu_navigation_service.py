@@ -1,3 +1,13 @@
+"""
+Сервис навигации по главному меню привычек.
+
+Содержит функцию-диспетчер, которая вызывается при нажатии
+inline-кнопки главного меню. Функция определяет выбранное действие
+по callback-данным и делегирует выполнение соответствующему
+сервису (добавление, список, редактирование, статистика, отметка,
+напоминание, удаление).
+"""
+
 from loguru import logger
 from telebot import TeleBot
 from telebot.types import CallbackQuery
@@ -12,6 +22,28 @@ from bot.services.reminder_services.set_reminder_service import show_set_reminde
 
 
 def show_habit_menu_navigation(bot: TeleBot, call: CallbackQuery) -> None:
+    """
+    Обработать нажатие кнопки главного меню привычек.
+
+    Извлекает действие из callback-данных формата "menu:<action>"
+    и ищет соответствующий обработчик в словаре commands_map,
+    который связывает ключ действия с кортежем из функции-обработчика
+    и её аргументов (bot, telegram_id, chat_id).
+
+    Если действие найдено — вызывает соответствующий сервис с нужными
+    аргументами. Если действие неизвестно — записывает предупреждение
+    в лог через loguru.logger. В конце подтверждает обработку
+    callback-запроса методом answer_callback_query, чтобы убрать
+    индикатор загрузки на кнопке.
+
+    :param bot: Экземпляр Telegram-бота
+    :type bot: TeleBot
+    :param call: Callback-запрос от inline-кнопки главного меню
+    :type call: CallbackQuery
+    :return: Ничего не возвращает
+    :rtype: None
+    """
+
     action = call.data.split(":")[1]
     telegram_id = call.from_user.id
     chat_id = call.message.chat.id
