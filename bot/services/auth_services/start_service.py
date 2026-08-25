@@ -1,3 +1,11 @@
+"""
+Сервис обработки команды /start.
+
+Содержит функцию, которая проверяет авторизацию пользователя
+и либо показывает главное меню (если токены уже есть),
+либо инициирует процесс регистрации.
+"""
+
 from telebot import TeleBot
 from telebot.types import Message
 
@@ -7,6 +15,23 @@ from bot.storage import token_storage
 
 
 def show_start(bot: TeleBot, message: Message) -> None:
+    """
+    Обработать команду /start.
+
+    Проверяет наличие сохранённых токенов авторизации для текущего
+    Telegram-пользователя. Если токены найдены — отправляет сообщение
+    об успешной авторизации и показывает главное меню. Если токенов
+    нет — переводит пользователя в состояние ожидания ввода полного
+    имени (первый шаг регистрации) и отправляет приветственное сообщение.
+
+    :param bot: Экземпляр Telegram-бота
+    :type bot: TeleBot
+    :param message: Входящее сообщение от команды /start
+    :type message: Message
+    :return: Ничего не возвращает
+    :rtype: None
+    """
+
     telegram_id = message.from_user.id
 
     if token_storage.get_tokens(telegram_id) is not None:
