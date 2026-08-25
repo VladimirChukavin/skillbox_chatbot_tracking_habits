@@ -1,3 +1,10 @@
+"""
+Сервис для регистрации нового пользователя через API бэкенда.
+
+Содержит функцию для отправки POST-запроса на создание учётной записи
+и сохранения полученных JWT-токенов в хранилище.
+"""
+
 from typing import Any
 
 from requests import Session
@@ -16,6 +23,31 @@ def register_user_service(
     password: str,
     username: str | None,
 ) -> dict[str, Any] | None:
+    """
+    Зарегистрировать пользователя на бэкенде.
+
+    Отправляет данные пользователя (Telegram ID, имя, пароль, username)
+    на эндпоинт /auth/register. При успешном ответе (статус 201)
+    сохраняет полученные токены через _store_tokens.
+
+    :param session: Сессия requests для переиспользования соединений
+    :type session: Session
+    :param base_url: Базовый URL API бэкенда
+    :type base_url: str
+    :param bot_settings: Объект настроек бота (для получения таймаута)
+    :type bot_settings: BotSettings
+    :param telegram_id: Telegram ID пользователя
+    :type telegram_id: int
+    :param full_name: Полное имя пользователя
+    :type full_name: str
+    :param password: Пароль пользователя
+    :type password: str
+    :param username: Username пользователя в Telegram (может быть None)
+    :type username: str | None
+    :return: Словарь с токенами при успехе, иначе None
+    :rtype: dict[str, Any] | None
+    """
+
     response = session.post(
         f"{base_url}/auth/register",
         json={
