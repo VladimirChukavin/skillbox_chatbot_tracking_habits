@@ -1,3 +1,10 @@
+"""
+Сервис для аутентификации (входа) пользователя через API бэкенда.
+
+Содержит функцию для отправки POST-запроса на вход и сохранения
+полученных JWT-токенов в хранилище.
+"""
+
 from typing import Any
 
 from requests import Session
@@ -14,6 +21,27 @@ def login_user_service(
     telegram_id: int,
     password: str,
 ) -> dict[str, Any] | None:
+    """
+    Выполнить вход пользователя на бэкенде.
+
+    Отправляет telegram_id и пароль на эндпоинт /auth/login.
+    При успешном ответе (статус 200) сохраняет полученные токены
+    через _store_tokens.
+
+    :param session: Сессия requests для переиспользования соединений
+    :type session: Session
+    :param base_url: Базовый URL API бэкенда
+    :type base_url: str
+    :param bot_settings: Объект настроек бота (для получения таймаута)
+    :type bot_settings: BotSettings
+    :param telegram_id: Telegram ID пользователя
+    :type telegram_id: int
+    :param password: Пароль пользователя
+    :type password: str
+    :return: Словарь с токенами при успехе, иначе None
+    :rtype: dict[str, Any] | None
+    """
+
     response = session.post(
         f"{base_url}/auth/login",
         json={
