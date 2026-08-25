@@ -1,7 +1,24 @@
+"""
+Inline-клавиатура главного меню бота.
+
+Содержит функцию для построения главного меню управления привычками
+(добавление, список, редактирование, статистика, отметка, напоминания, удаление).
+"""
+
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
 def build_main_menu_keyboard() -> InlineKeyboardMarkup:
+    """
+    Построить клавиатуру главного меню.
+
+    Создаёт сетку кнопок для основных действий с привычками.
+    Callback-данные начинаются с префикса "menu:".
+
+    :return: Объект inline-клавиатуры главного меню
+    :rtype: InlineKeyboardMarkup
+    """
+
     keyboard = InlineKeyboardMarkup()
     keyboard.row(
         InlineKeyboardButton(text="➕ Добавить", callback_data="menu:add"),
