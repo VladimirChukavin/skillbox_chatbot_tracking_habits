@@ -1,3 +1,10 @@
+"""
+Сервис для обработки пароля при регистрации пользователя.
+
+Содержит функцию, которая регистрирует пользователя на бэкенде,
+сохраняет токены и показывает главное меню при успешной регистрации.
+"""
+
 from loguru import logger
 from telebot import TeleBot
 from telebot.types import Message
@@ -7,6 +14,22 @@ from bot.keyboards.main_menu_keyboard import build_main_menu_keyboard
 
 
 def show_registration_password(bot: TeleBot, message: Message) -> None:
+    """
+    Обработать ввод пароля для регистрации нового пользователя.
+
+    Удаляет сообщение с паролем из чата. Проверяет минимальную длину пароля
+    (6 символов). Извлекает сохранённое ранее имя из состояния (FSM) и
+    отправляет запрос на создание пользователя на бэкенде. При успехе
+    сбрасывает состояние и отправляет главное меню.
+
+    :param bot: Экземпляр Telegram-бота
+    :type bot: TeleBot
+    :param message: Входящее сообщение с паролем
+    :type message: Message
+    :return: Ничего не возвращает
+    :rtype: None
+    """
+
     password = message.text.strip() if message.text else ""
     telegram_id = message.from_user.id
 
