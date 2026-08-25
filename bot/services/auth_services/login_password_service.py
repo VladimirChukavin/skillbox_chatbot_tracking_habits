@@ -1,3 +1,10 @@
+"""
+Сервис для обработки ввода пароля при входе пользователя.
+
+Содержит функцию, которая проверяет пароль через API бэкенда,
+сохраняет токены и показывает главное меню при успешной аутентификации.
+"""
+
 from loguru import logger
 from telebot import TeleBot
 from telebot.types import Message
@@ -7,6 +14,21 @@ from bot.keyboards.main_menu_keyboard import build_main_menu_keyboard
 
 
 def show_login_password(bot: TeleBot, message: Message) -> None:
+    """
+    Обработать ввод пароля для входа в систему.
+
+    Удаляет сообщение с паролем из чата в целях безопасности. Отправляет
+    запрос на аутентификацию к бэкенду. При успехе сбрасывает состояние (FSM)
+    и отправляет пользователю главное меню. При неудаче просит попробовать снова.
+
+    :param bot: Экземпляр Telegram-бота
+    :type bot: TeleBot
+    :param message: Входящее сообщение с паролем
+    :type message: Message
+    :return: Ничего не возвращает
+    :rtype: None
+    """
+
     password = message.text.strip() if message.text else ""
     telegram_id = message.from_user.id
 
