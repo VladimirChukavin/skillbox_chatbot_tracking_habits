@@ -1,3 +1,11 @@
+"""
+Фабрика создания и настройки экземпляра Telegram-бота.
+
+Содержит функцию, которая инициализирует бота на основе
+настроек из bot_settings, регистрирует кастомные фильтры,
+прокси и все обработчики команд и callback-запросов проекта.
+"""
+
 import telebot.apihelper
 from telebot import TeleBot, custom_filters
 
@@ -12,6 +20,29 @@ from bot.handlers.unknown_handlers import register_unknown_handlers
 
 
 def create_bot() -> TeleBot:
+    """
+    Создать и настроить экземпляр Telegram-бота.
+
+    Читает URL HTTP-прокси из bot_settings.http_proxy (если задан)
+    и применяет его к telebot.apihelper.proxy для HTTP и HTTPS.
+    Инициализирует TeleBot с токеном из настроек и поддержкой
+    классовых middleware (use_class_middlewares=True).
+
+    Регистрирует кастомный фильтр StateFilter для работы с
+    FSM-состояниями и подключает все группы обработчиков:
+    - register_auth_handlers — авторизация и регистрация;
+    - register_habit_handlers — создание, редактирование,
+      удаление привычек;
+    - register_reminder_handlers — установка напоминаний;
+    - register_stats_handler — просмотр статистики;
+    - register_tracking_handlers — отметка выполнения;
+    - register_help_handler — справка по командам;
+    - register_unknown_handlers — обработка неизвестных команд.
+
+    :return: Настроенный экземпляр Telegram-бота, готовый к запуску
+    :rtype: TeleBot
+    """
+
     proxy = None
 
     if bot_settings.http_proxy:
