@@ -32,16 +32,14 @@ async def carry_over_incomplete_habits(session: AsyncSession) -> int:
     today = datetime.date.today()
     carried_count = 0
 
-    completed_today_subquery = (
-        select(HabitLog.habit_id).where(
-            HabitLog.log_date == today, HabitLog.is_completed.is_(True)
-        )
-    ).subquery()
+    completed_today_subquery = select(HabitLog.habit_id).where(
+        HabitLog.log_date == today, HabitLog.is_completed.is_(True)
+    )
 
     statement = (
         select(Habit)
         .where(Habit.is_active.is_(True))
-        .where(~Habit.id.in_(completed_today_subquery.c.habit_id))
+        .where(~Habit.id.in_(completed_today_subquery))
     )
 
     result = await session.execute(statement)
