@@ -1,3 +1,10 @@
+"""
+Сервис для обновления access-токена через API бэкенда.
+
+Содержит функцию для отправки refresh-токена на бэкенд с целью получения
+новой пары JWT-токенов.
+"""
+
 from requests import Session
 
 from bot.api.api_services.store_tokens_service import _store_tokens
@@ -6,6 +13,24 @@ from bot.storage import token_storage
 
 
 def _refresh_access_token(telegram_id: int, session: Session, base_url: str) -> bool:
+    """
+    Обновить access-токен, используя сохранённый refresh-токен.
+
+    Отправляет refresh-токен как query-параметр на эндпоинт /auth/refresh.
+    При успешном обновлении (статус 200) сохраняет новые токены.
+    При неудаче (например, истёкший refresh-токен) очищает хранилище токенов
+    пользователя, требуя повторный вход.
+
+    :param telegram_id: Telegram ID пользователя
+    :type telegram_id: int
+    :param session: Сессия requests для переиспользования соединений
+    :type session: Session
+    :param base_url: Базовый URL API бэкенда
+    :type base_url: str
+    :return: True, если токены успешно обновлены, иначе False
+    :rtype: bool
+    """
+
     bundle = token_storage.get_tokens(telegram_id)
 
     if bundle is None:
