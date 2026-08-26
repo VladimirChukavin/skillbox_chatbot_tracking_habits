@@ -44,21 +44,6 @@ def show_habit_field_choice(bot: TeleBot, call: CallbackQuery) -> None:
     field = call.data.split(":")[1]
     telegram_id = call.from_user.id
 
-    if field == "delete":
-        with bot.retrieve_data(telegram_id, call.message.chat.id) as data:
-            habit_id = data.get("editing_habit_id")
-
-        if habit_id is not None and api_client.delete_habit(telegram_id, habit_id):
-            bot.delete_state(telegram_id, call.message.chat.id)
-            bot.edit_message_text(
-                "🗑 Привычка удалена.",
-                chat_id=call.message.chat.id,
-                message_id=call.message.message_id,
-            )
-        else:
-            bot.send_message(telegram_id, "❌ Не удалось удалить привычку.")
-        return
-
     with bot.retrieve_data(telegram_id, call.message.chat.id) as data:
         data["editing_field"] = field
 
