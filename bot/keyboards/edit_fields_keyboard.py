@@ -25,7 +25,6 @@ def build_edit_fields_keyboard() -> InlineKeyboardMarkup:
         ("Описание", "field:description"),
         ("Цель", "field:target_description"),
         ("Срок (дней)", "field:target_days"),
-        ("Удалить привычку", "field:delete"),
     ]
 
     for label, callback in fields:
