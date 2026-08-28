@@ -165,7 +165,7 @@ class HabitNotifier:
             reminders = response.json()
 
             for reminder in reminders:
-                telegram_id = reminder.get("user_telegram_id")
+                telegram_id = reminder.get("telegram_id")
                 habit_title = reminder.get("title")
                 self._bot.send_message(
                     telegram_id,
