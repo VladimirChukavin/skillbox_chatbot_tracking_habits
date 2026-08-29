@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.token_schema import TokenBundle
 from app.schemas.user_schema import UserCreate
 from app.database import get_db_session
-from app.services.auth_service import issue_token_bundle
+from app.services.auth_services.issue_token_bundle_service import issue_token_bundle
 from app.services.user_services.create_user_service import create_user
 
 router = APIRouter()
