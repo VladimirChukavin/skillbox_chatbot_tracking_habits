@@ -13,7 +13,7 @@ from app.models.user_model import User
 from app.schemas.habit_schema import HabitCreate, HabitUpdate
 from app.services.user_services.create_user_service import create_user
 from app.core.security import hash_password
-from app.services.auth_service import authenticate_user
+from app.services.auth_services.authenticate_user_service import authenticate_user
 from app.services.habit_services.create_habit_service import create_habit
 from app.services.habit_services.track_habit_service import track_habit
 from app.services.habit_services.calculate_habit_stats_service import (
@@ -23,6 +23,8 @@ from app.services.habit_services.carry_over_incomplete_habits_service import (
     carry_over_incomplete_habits,
 )
 from app.services.habit_services.update_habit_service import update_habit
+
+_PREHASHED_PASSWORD = hash_password("secret123")
 
 
 @pytest.mark.asyncio
@@ -65,7 +67,7 @@ class TestAuthenticateUser:
         user = User(
             telegram_id=123,
             full_name="Иван",
-            hashed_password=hash_password("secret123"),
+            hashed_password=_PREHASHED_PASSWORD,
         )
         mock_result = MagicMock()
         mock_result.scalar_one_or_none.return_value = user
@@ -79,7 +81,7 @@ class TestAuthenticateUser:
         user = User(
             telegram_id=123,
             full_name="Иван",
-            hashed_password=hash_password("secret123"),
+            hashed_password=_PREHASHED_PASSWORD,
         )
         mock_result = MagicMock()
         mock_result.scalar_one_or_none.return_value = user
@@ -192,9 +194,10 @@ class TestTrackHabit:
         mock_result.scalar_one_or_none.return_value = existing_log
         mock_session.execute.return_value = mock_result
 
-        await track_habit(mock_session, habit, is_completed=False)
+        log = await track_habit(mock_session, habit, is_completed=False)
 
         assert habit.completed_count == 0
+        assert log.is_completed is False
 
 
 @pytest.mark.asyncio
@@ -312,3 +315,31 @@ class TestUpdateHabit:
 
         assert updated.reminder_time is not None
         assert updated.reminder_time.hour == 6
+
+    async def test_update_multiple_fields(self, mock_session):
+        habit = Habit(
+            id=1, user_id=1, title="Старое", target_days=21, completed_count=0
+        )
+        user = User(
+            telegram_id=123, full_name="Иван", hashed_password="x", timezone="UTC"
+        )
+        payload = HabitUpdate(title="Новое", target_days=30)
+
+        updated = await update_habit(mock_session, habit, payload, user)
+
+        assert updated.title == "Новое"
+        assert updated.target_days == 30
+
+    async def test_update_empty_payload(self, mock_session):
+        habit = Habit(
+            id=1, user_id=1, title="Старое", target_days=21, completed_count=0
+        )
+        user = User(
+            telegram_id=123, full_name="Иван", hashed_password="x", timezone="UTC"
+        )
+        payload = HabitUpdate()
+
+        updated = await update_habit(mock_session, habit, payload, user)
+
+        assert updated.title == "Старое"
+        assert updated.target_days == 21
