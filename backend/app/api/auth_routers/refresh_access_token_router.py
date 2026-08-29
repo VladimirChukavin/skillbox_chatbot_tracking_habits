@@ -12,7 +12,7 @@ from jose import JWTError
 from app.core.security import decode_token
 from app.database import get_db_session
 from app.schemas.token_schema import TokenBundle
-from app.services.auth_service import issue_token_bundle
+from app.services.auth_services.issue_token_bundle_service import issue_token_bundle
 from app.services.user_services.get_user_by_telegram_id_service import (
     get_user_by_telegram_id,
 )
