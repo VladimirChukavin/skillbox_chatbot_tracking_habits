@@ -57,22 +57,6 @@ class Settings(BaseSettings):
             f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_name}"
         )
 
-    @property
-    def sync_database_url(self) -> str:
-        """
-        Строка подключения к БД для синхронного драйвера (psycopg2).
-
-        Используется инструментами миграции (Alembic).
-
-        :return: DSN для PostgreSQL (psycopg2)
-        :rtype: str
-        """
-
-        return (
-            f"postgresql+psycopg2://{self.postgres_user}:{self.postgres_password}"
-            f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_name}"
-        )
-
 
 @lru_cache
 def get_settings() -> Settings:
