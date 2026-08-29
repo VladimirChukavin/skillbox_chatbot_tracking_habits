@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Habit tracker API",
     description="Бэкенд чат-бота для трекинга привычек",
-    version="0.1.0",
+    version="1.0.0",
     lifespan=lifespan,
 )
 
