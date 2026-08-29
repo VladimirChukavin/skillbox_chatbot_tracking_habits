@@ -7,8 +7,7 @@
 
 import datetime
 
-import sqlalchemy
-from sqlalchemy import select
+from sqlalchemy import select, extract
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.habit_model import Habit
@@ -39,10 +38,8 @@ async def get_habits_by_reminder(
         .join(User, Habit.user_id == User.id)
         .where(Habit.is_active.is_(True))
         .where(Habit.reminder_time.isnot(None))
-        .where(sqlalchemy.extract("hour", Habit.reminder_time) == reminder_time.hour)
-        .where(
-            sqlalchemy.extract("minute", Habit.reminder_time) == reminder_time.minute
-        )
+        .where(extract("hour", Habit.reminder_time) == reminder_time.hour)
+        .where(extract("minute", Habit.reminder_time) == reminder_time.minute)
     )
     result = await session.execute(statement)
 
