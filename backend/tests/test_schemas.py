@@ -13,7 +13,7 @@ from app.schemas.habit_schema import (
     HabitTrackRequest,
     HabitUpdate,
 )
-from backend.app.schemas.user_schema import UserCreate, UserLogin
+from app.schemas.user_schema import UserCreate, UserLogin
 
 
 class TestUserCreate:
