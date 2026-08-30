@@ -6,6 +6,8 @@
 """
 
 from requests import Session
+from requests.exceptions import RequestException, JSONDecodeError
+from loguru import logger
 
 from bot.api.api_services.store_tokens_service import _store_tokens
 from bot.config import bot_settings
@@ -34,17 +36,42 @@ def _refresh_access_token(telegram_id: int, session: Session, base_url: str) -> 
     bundle = token_storage.get_tokens(telegram_id)
 
     if bundle is None:
+        logger.warning("Нет токенов для обновления (telegram_id={})", telegram_id)
         return False
 
-    response = session.post(
-        f"{base_url}/auth/refresh",
-        params={"refresh_token": bundle.refresh_token},
-        timeout=bot_settings.request_timeout,
-    )
+    try:
+        response = session.post(
+            f"{base_url}/auth/refresh",
+            params={"refresh_token": bundle.refresh_token},
+            timeout=bot_settings.request_timeout,
+        )
+    except RequestException as error:
+        logger.error(
+            "Сетевая ошибка при обновлении токена: (telegram_id={}): {}",
+            telegram_id,
+            str(error),
+        )
+        return False
 
-    if response.status_code == 200:
-        _store_tokens(telegram_id, response.json())
+    if response.ok:
+        try:
+            data = response.json()
+        except JSONDecodeError:
+            logger.warning(
+                "Сервер вернул успешный статус, но тело ответа не JSON (telegram_id={})",
+                telegram_id,
+            )
+            return False
+
+        _store_tokens(telegram_id, data)
         return True
+
+    logger.warning(
+        "Ошибка обновления токена (telegram_id={}): status={} body={}",
+        telegram_id,
+        response.status_code,
+        response.text,
+    )
 
     token_storage.clear_tokens(telegram_id)
 
