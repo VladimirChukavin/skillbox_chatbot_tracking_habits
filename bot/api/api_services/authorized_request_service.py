@@ -9,6 +9,7 @@
 from typing import Any
 
 from requests import Response, Session
+from requests.exceptions import RequestException
 from loguru import logger
 
 from bot.api.api_services.refresh_access_token_service import _refresh_access_token
@@ -56,24 +57,51 @@ def _authorized_request(
     headers = kwargs.pop("headers", {})
     headers["Authorization"] = f"Bearer {bundle.access_token}"
 
-    response = session.request(
-        method,
-        f"{base_url}{endpoint}",
-        headers=headers,
-        timeout=bot_settings.request_timeout,
-        **kwargs,
-    )
+    try:
+        response = session.request(
+            method,
+            f"{base_url}{endpoint}",
+            headers=headers,
+            timeout=bot_settings.request_timeout,
+            **kwargs,
+        )
 
-    if response.status_code == 401:
-        if _refresh_access_token(telegram_id, session, base_url):
-            bundle = token_storage.get_tokens(telegram_id)
-            headers["Authorization"] = f"Bearer {bundle.access_token}"
-            response = session.request(
-                method,
-                f"{base_url}{endpoint}",
-                headers=headers,
-                timeout=bot_settings.request_timeout,
-                **kwargs,
+        if response.status_code == 401:
+            logger.info(
+                "Access-токен истёк для telegram_id={}. Пытаюсь обновить...",
+                telegram_id,
             )
+            if _refresh_access_token(telegram_id, session, base_url):
+                bundle = token_storage.get_tokens(telegram_id)
+                if bundle:
+                    headers["Authorization"] = f"Bearer {bundle.access_token}"
 
-    return response
+                    response = session.request(
+                        method,
+                        f"{base_url}{endpoint}",
+                        headers=headers,
+                        timeout=bot_settings.request_timeout,
+                        **kwargs,
+                    )
+
+                    if response.status_code == 401:
+                        logger.warning(
+                            "Запрос все еще возвращает 401 после обновления токена. "
+                            "Очищаю сессию для telegram_id={}",
+                            telegram_id,
+                        )
+                        token_storage.clear_tokens(telegram_id)
+            else:
+                logger.warning(
+                    "Не удалось обновить токен для telegram_id={}. Требуется повторный вход.",
+                    telegram_id,
+                )
+
+        return response
+    except RequestException as error:
+        logger.error(
+            "Ошибка сети при выполнении запроса к API (telegram_id={}): {}",
+            telegram_id,
+            str(error),
+        )
+        return None
