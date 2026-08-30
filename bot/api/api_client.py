@@ -101,7 +101,6 @@ class ApiClient:
         return create_habit_service(
             self._session,
             self._base_url,
-            "POST",
             telegram_id,
             habit_data,
         )
@@ -119,7 +118,6 @@ class ApiClient:
         return list_habits_service(
             self._session,
             self._base_url,
-            "GET",
             telegram_id,
             "/habits",
         )
@@ -139,7 +137,6 @@ class ApiClient:
         return get_habit_service(
             self._session,
             self._base_url,
-            "GET",
             telegram_id,
             habit_id,
         )
@@ -163,7 +160,6 @@ class ApiClient:
         return update_habit_service(
             self._session,
             self._base_url,
-            "PATCH",
             telegram_id,
             habit_id,
             habit_data,
@@ -184,7 +180,6 @@ class ApiClient:
         return delete_habit_service(
             self._session,
             self._base_url,
-            "DELETE",
             telegram_id,
             habit_id,
         )
@@ -208,7 +203,6 @@ class ApiClient:
         return track_habit_service(
             self._session,
             self._base_url,
-            "POST",
             telegram_id,
             habit_id,
             is_completed,
@@ -229,7 +223,6 @@ class ApiClient:
         return get_habit_stats_service(
             self._session,
             self._base_url,
-            "GET",
             telegram_id,
             habit_id,
         )
