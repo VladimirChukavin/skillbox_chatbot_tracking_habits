@@ -8,6 +8,7 @@
 from typing import Any
 
 from requests import Session
+from requests.exceptions import RequestException, JSONDecodeError
 from loguru import logger
 
 from bot.api.api_services.store_tokens_service import _store_tokens
@@ -42,19 +43,41 @@ def login_user_service(
     :rtype: dict[str, Any] | None
     """
 
-    response = session.post(
-        f"{base_url}/auth/login",
-        json={
-            "telegram_id": telegram_id,
-            "password": password,
-        },
-        timeout=bot_settings.request_timeout,
+    try:
+        response = session.post(
+            f"{base_url}/auth/login",
+            json={
+                "telegram_id": telegram_id,
+                "password": password,
+            },
+            timeout=bot_settings.request_timeout,
+        )
+    except RequestException as error:
+        logger.error(
+            "Сетевая ошибка при входе (telegram_id={}): {}",
+            telegram_id,
+            str(error),
+        )
+        return None
+
+    if response.ok:
+        try:
+            data = response.json()
+        except JSONDecodeError:
+            logger.error(
+                "Сервер вернул успешный статус, но тело ответа не JSON (telegram_id={})",
+                telegram_id,
+            )
+            return None
+
+        _store_tokens(telegram_id, data)
+        return data
+
+    logger.warning(
+        "Логин не удался (telegram_id={}): status={} body={}",
+        telegram_id,
+        response.status_code,
+        response.text,
     )
-
-    if response.status_code == 200:
-        _store_tokens(telegram_id, response.json())
-        return response.json()
-
-    logger.warning("Логин не удался: {} {}", response.status_code, response.text)
 
     return None
