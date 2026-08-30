@@ -197,7 +197,6 @@ class TestCreateHabitsService:
         result = create_habit_service(
             session,
             "http://localhost:8000",
-            "POST",
             123,
             {"title": "Test", "target_days": 21},
         )
@@ -213,7 +212,6 @@ class TestCreateHabitsService:
         result = create_habit_service(
             session,
             "http://localhost:8000",
-            "POST",
             123,
             {"title": "Test"},
         )
@@ -225,7 +223,6 @@ class TestCreateHabitsService:
         result = create_habit_service(
             session,
             "http://localhost:8000",
-            "POST",
             999,
             {"title": "Test"},
         )
@@ -242,18 +239,14 @@ class TestListHabitsService:
             json_data=[{"id": 1, "title": "Test"}],
         )
 
-        result = list_habits_service(
-            session, "http://localhost:8000", "GET", 123, "/habits"
-        )
+        result = list_habits_service(session, "http://localhost:8000", 123, "/habits")
 
         assert len(result) == 1
         assert result[0]["title"] == "Test"
 
     def test_list_no_tokens_returns_empty(self):
         session = MagicMock()
-        result = list_habits_service(
-            session, "http://localhost:8000", "GET", 999, "/habits"
-        )
+        result = list_habits_service(session, "http://localhost:8000", 999, "/habits")
 
         assert result == []
 
@@ -262,9 +255,7 @@ class TestListHabitsService:
         session = MagicMock()
         session.request.return_value = mock_response(status_code=500)
 
-        result = list_habits_service(
-            session, "http://localhost:8000", "GET", 123, "/habits"
-        )
+        result = list_habits_service(session, "http://localhost:8000", 123, "/habits")
 
         assert result == []
 
@@ -275,9 +266,7 @@ class TestDeleteHabitService:
         session = MagicMock()
         session.request.return_value = mock_response(status_code=204)
 
-        result = delete_habit_service(
-            session, "http://localhost:8000", "DELETE", 123, 1
-        )
+        result = delete_habit_service(session, "http://localhost:8000", 123, 1)
 
         assert result is True
 
@@ -286,18 +275,14 @@ class TestDeleteHabitService:
         session = MagicMock()
         session.request.return_value = mock_response(status_code=404)
 
-        result = delete_habit_service(
-            session, "http://localhost:8000", "DELETE", 123, 99
-        )
+        result = delete_habit_service(session, "http://localhost:8000", 123, 99)
 
         assert result is False
 
     def test_delete_no_tokens(self):
         session = MagicMock()
 
-        result = delete_habit_service(
-            session, "http://localhost:8000", "DELETE", 999, 1
-        )
+        result = delete_habit_service(session, "http://localhost:8000", 999, 1)
 
         assert result is False
 
@@ -311,9 +296,7 @@ class TestTrackHabitsService:
             json_data={"id": 1, "completed_count": 1},
         )
 
-        result = track_habit_service(
-            session, "http://localhost:8000", "POST", 123, 1, True
-        )
+        result = track_habit_service(session, "http://localhost:8000", 123, 1, True)
 
         assert result is not None
         assert result["completed_count"] == 1
@@ -323,9 +306,7 @@ class TestTrackHabitsService:
         session = MagicMock()
         session.request.return_value = mock_response(status_code=400)
 
-        result = track_habit_service(
-            session, "http://localhost:8000", "POST", 123, 1, True
-        )
+        result = track_habit_service(session, "http://localhost:8000", 123, 1, True)
 
         assert result is None
 
@@ -339,9 +320,7 @@ class TestGetHabitsStatsService:
             json_data={"habit_id": 1, "progress_percent": 50.0},
         )
 
-        result = get_habit_stats_service(
-            session, "http://localhost:8000", "GET", 123, 1
-        )
+        result = get_habit_stats_service(session, "http://localhost:8000", 123, 1)
 
         assert result is not None
         assert result["progress_percent"] == 50.0
@@ -351,8 +330,6 @@ class TestGetHabitsStatsService:
         session = MagicMock()
         session.request.return_value = mock_response(status_code=404)
 
-        result = get_habit_stats_service(
-            session, "http://localhost:8000", "GET", 123, 99
-        )
+        result = get_habit_stats_service(session, "http://localhost:8000", 123, 99)
 
         assert result is None
