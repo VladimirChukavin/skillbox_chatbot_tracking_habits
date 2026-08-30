@@ -6,6 +6,8 @@
 """
 
 from requests import Session
+from requests.exceptions import JSONDecodeError
+from loguru import logger
 
 from bot.api.api_services.authorized_request_service import _authorized_request
 
@@ -13,7 +15,6 @@ from bot.api.api_services.authorized_request_service import _authorized_request
 def list_habits_service(
     session: Session,
     base_url: str,
-    method: str,
     telegram_id: int,
     endpoint: str,
 ) -> list[dict]:
@@ -27,8 +28,6 @@ def list_habits_service(
     :type session: Session
     :param base_url: Базовый URL API бэкенда
     :type base_url: str
-    :param method: HTTP-метод (ожидается "GET")
-    :type method: str
     :param telegram_id: Telegram ID пользователя
     :type telegram_id: int
     :param endpoint: Путь эндпоинта (например, "/habits")
@@ -37,12 +36,33 @@ def list_habits_service(
     :rtype: list[dict]
     """
 
-    response = _authorized_request(session, base_url, method, telegram_id, endpoint)
+    response = _authorized_request(session, base_url, "GET", telegram_id, endpoint)
 
     if response is None:
+        logger.warning(
+            "Нет ответа от сервера при получении списка привычек (telegram_id={}, endpoint={})",
+            telegram_id,
+            endpoint,
+        )
         return []
 
-    if response.status_code == 200:
-        return response.json()
+    if response.ok:
+        try:
+            return response.json()
+        except JSONDecodeError:
+            logger.warning(
+                "Сервер вернул успешный ответ, но тело ответа не JSON (telegram_id={}, endpoint={})",
+                telegram_id,
+                endpoint,
+            )
+            return []
+
+    logger.warning(
+        "Ошибка получения списка привычек (telegram_id={}, endpoint={}): status={} body={}",
+        telegram_id,
+        endpoint,
+        response.status_code,
+        response.text,
+    )
 
     return []
