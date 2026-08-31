@@ -93,3 +93,4 @@ class DeleteHabitsStates(StatesGroup):
     """
 
     waiting_for_habit_choice = State()
+    waiting_for_deletion_confirmation = State()
