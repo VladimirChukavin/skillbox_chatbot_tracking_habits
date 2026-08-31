@@ -52,7 +52,7 @@ def register_stats_handler(bot: TeleBot) -> None:
     @bot.callback_query_handler(func=lambda call: call.data.startswith("cancel"))
     def handle_stats_cancel(call: CallbackQuery) -> None:
         """
-        Обработчик отмены установки напоминания (callback "cancel").
+        Обработчик отмены просмотра статистики (callback "cancel").
 
         :param call: Callback-запрос от inline-клавиатуры
         :type call: CallbackQuery
