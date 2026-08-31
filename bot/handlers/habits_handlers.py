@@ -221,7 +221,8 @@ def register_habit_handlers(bot: TeleBot) -> None:
     )
     def handle_confirm_delete_habit(call: CallbackQuery) -> None:
         """
-        Обработчик выбора привычки для удаления (callback "delete:").
+        Обработчик выбора подтверждения удаления
+        привычки (callback "confirm_delete:").
 
         :param call: Callback-запрос от inline-клавиатуры
         :type call: CallbackQuery
