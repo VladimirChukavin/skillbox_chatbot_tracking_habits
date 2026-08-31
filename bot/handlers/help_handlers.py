@@ -5,6 +5,8 @@
 пользователю список доступных команд бота.
 """
 
+from requests.exceptions import RequestException
+
 from telebot import TeleBot
 from telebot.types import Message
 from telebot.apihelper import ApiException
@@ -34,6 +36,7 @@ def register_help_handler(bot: TeleBot) -> None:
         :param message: Входящее сообщение от пользователя
         :type message: Message
         :raises ApiException: При ошибке отправки сообщения в Telegram
+        :raises RequestException: При ошибке сетевого взаимодействия
         :return: Ничего не возвращает
         :rtype: None
         """
@@ -42,9 +45,11 @@ def register_help_handler(bot: TeleBot) -> None:
             commands = [f"/{command} - {desc}" for command, desc in DEFAULT_COMMANDS]
             text = (
                 "Я не волшебник, я только бот, который предоставляет вам возможности отслеживания привычек.\n"
-                "Ниже список команд, которыми вы может воспользоваться.\n{}"
+                "Ниже список команд, которыми вы можете воспользоваться.\n{}"
             ).format("\n".join(commands))
 
             bot.send_message(message.chat.id, text)
-        except ApiException as e:
-            logger.error("Ошибка при взаимодействии с API Telegram: {}".format(e))
+        except ApiException as error:
+            logger.error("Ошибка при взаимодействии с API Telegram: {}", str(error))
+        except RequestException as error:
+            logger.error("Сетевая ошибка при отправке справки: {}", str(error))
