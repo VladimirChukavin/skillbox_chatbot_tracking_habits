@@ -8,6 +8,7 @@
 from telebot import TeleBot
 from telebot.types import Message, CallbackQuery
 
+from bot.services.cancel_service import show_cancel
 from bot.services.stats_services.habit_stats_service import show_habit_stats
 from bot.services.stats_services.stats_choice_service import show_stats_choice
 
@@ -47,3 +48,16 @@ def register_stats_handler(bot: TeleBot) -> None:
         """
 
         show_stats_choice(bot, call)
+
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("cancel"))
+    def handle_stats_cancel(call: CallbackQuery) -> None:
+        """
+        Обработчик отмены установки напоминания (callback "cancel").
+
+        :param call: Callback-запрос от inline-клавиатуры
+        :type call: CallbackQuery
+        :return: Ничего не возвращает
+        :rtype: None
+        """
+
+        show_cancel(bot, call)
