@@ -37,13 +37,15 @@ def show_set_reminder(bot: TeleBot, telegram_id: int, chat_id: int) -> None:
     habits = api_client.list_habits(telegram_id)
 
     if not habits:
-        bot.send_message(telegram_id, "Нет привычек для установки напоминания.")
+        bot.send_message(telegram_id, "❌ Нет привычек для установки напоминания.")
         return
 
     bot.set_state(telegram_id, ReminderStates.waiting_for_habit_choice, chat_id)
 
+    keyboard = build_habits_keyboard(habits, "reminder", with_cancel=True)
+
     bot.send_message(
         chat_id,
         "Выберите привычку:",
-        reply_markup=build_habits_keyboard(habits, callback_prefix="reminder"),
+        reply_markup=keyboard,
     )
