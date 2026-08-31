@@ -35,11 +35,13 @@ def show_habit_stats(bot: TeleBot, telegram_id: int, chat_id: int) -> None:
     habits = api_client.list_habits(telegram_id)
 
     if not habits:
-        bot.send_message(telegram_id, "Нет привычек для просмотра статистики.")
+        bot.send_message(telegram_id, "❌ Нет привычек для просмотра статистики.")
         return
+
+    keyboard = build_habits_keyboard(habits, "stats", with_cancel=True)
 
     bot.send_message(
         telegram_id,
         "Выберите привычку:",
-        reply_markup=build_habits_keyboard(habits, callback_prefix="stats"),
+        reply_markup=keyboard,
     )
