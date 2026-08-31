@@ -10,6 +10,9 @@ from telebot import TeleBot
 from telebot.types import Message, CallbackQuery
 
 from bot.services.habit_services.add_habit_service import show_add_habit
+from bot.services.habit_services.confirm_delete_habit_service import (
+    show_confirm_delete_habit_choice,
+)
 from bot.services.habit_services.delete_habit_choice_service import (
     show_delete_habit_choice,
 )
@@ -212,3 +215,18 @@ def register_habit_handlers(bot: TeleBot) -> None:
         """
 
         show_delete_habit_choice(bot, call)
+
+    @bot.callback_query_handler(
+        func=lambda call: call.data.startswith("confirm_delete:")
+    )
+    def handle_confirm_delete_habit(call: CallbackQuery) -> None:
+        """
+        Обработчик выбора привычки для удаления (callback "delete:").
+
+        :param call: Callback-запрос от inline-клавиатуры
+        :type call: CallbackQuery
+        :return: Ничего не возвращает
+        :rtype: None
+        """
+
+        show_confirm_delete_habit_choice(bot, call)
