@@ -8,6 +8,7 @@
 from telebot import TeleBot
 from telebot.types import Message, CallbackQuery
 
+from bot.services.cancel_service import show_cancel
 from bot.services.reminder_services.set_reminder_service import show_set_reminder
 from bot.services.reminder_services.reminder_choice_service import show_reminder_choice
 from bot.services.reminder_services.reminder_time_service import show_reminder_time
@@ -65,3 +66,15 @@ def register_reminder_handlers(bot: TeleBot) -> None:
         """
 
         show_reminder_time(bot, message)
+
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("cancel"))
+    def handle_reminder_cancel(call: CallbackQuery) -> None:
+        """
+        Обработчик отмены установки напоминания (callback "cancel").
+
+        :param call: Callback-запрос от inline-клавиатуры
+        :type call: CallbackQuery
+        :return: Ничего не возвращает
+        :rtype: None
+        """
+        show_cancel(bot, call)
