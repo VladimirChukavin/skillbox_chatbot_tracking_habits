@@ -8,6 +8,7 @@
 from telebot import TeleBot
 from telebot.types import Message, CallbackQuery
 
+from bot.services.cancel_service import show_cancel
 from bot.services.tracking_services.track_habit_service import show_track_habit
 from bot.services.tracking_services.track_choice_service import show_track_choice
 from bot.services.tracking_services.track_done_service import show_track_done
@@ -75,3 +76,16 @@ def register_tracking_handlers(bot: TeleBot) -> None:
         """
 
         show_track_skip(bot, call)
+
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("cancel"))
+    def handle_track_cancel(call: CallbackQuery) -> None:
+        """
+        Обработчик отмены трекинга выполнения привычек (callback "cancel").
+
+        :param call: Callback-запрос от inline-клавиатуры
+        :type call: CallbackQuery
+        :return: Ничего не возвращает
+        :rtype: None
+        """
+
+        show_cancel(bot, call)
