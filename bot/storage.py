@@ -7,8 +7,14 @@
 привязаны к идентификатору Telegram-пользователя.
 """
 
-import threading
-from dataclasses import dataclass
+import json
+
+# import threading
+from dataclasses import dataclass, asdict
+
+import redis
+
+from bot.config import bot_settings
 
 
 @dataclass
@@ -38,7 +44,7 @@ class TokenStorage:
     :ivar _lock: Блокировка для потокобезопасного доступа
     """
 
-    def __init__(self) -> None:
+    def __init__(self, host: str, port: int, db: int) -> None:
         """
         Инициализировать пустое хранилище токенов.
 
@@ -49,10 +55,22 @@ class TokenStorage:
         :rtype: None
         """
 
-        self._tokens: dict[int, TokenBundle] = {}
-        self._lock = threading.Lock()
+        # self._tokens: dict[int, TokenBundle] = {}
+        # self._lock = threading.Lock()
+        self._client = redis.Redis(
+            host=host,
+            port=port,
+            db=db,
+            decode_responses=True,
+        )
+        self._prefix = "token:"
 
-    def save_tokens(self, telegram_id: int, bundle: TokenBundle) -> None:
+    def _get_key(self, telegram_id: int) -> str:
+        return f"{self._prefix}{telegram_id}"
+
+    def save_tokens(
+        self, telegram_id: int, bundle: TokenBundle, ttl_seconds: int = 2592000
+    ) -> None:
         """
         Сохранить или перезаписать токены пользователя.
 
@@ -60,12 +78,16 @@ class TokenStorage:
         :type telegram_id: int
         :param bundle: Контейнер с access и refresh токенами
         :type bundle: TokenBundle
+        :param ttl_seconds: Срок действия токенов
+        :type ttl_seconds: int
         :return: Ничего не возвращает
         :rtype: None
         """
 
-        with self._lock:
-            self._tokens[telegram_id] = bundle
+        # with self._lock:
+        #     self._tokens[telegram_id] = bundle
+        data = asdict(bundle)
+        self._client.setex(self._get_key(telegram_id), ttl_seconds, json.dumps(data))
 
     def get_tokens(self, telegram_id: int) -> TokenBundle | None:
         """
@@ -77,8 +99,21 @@ class TokenStorage:
         :rtype: TokenBundle | None
         """
 
-        with self._lock:
-            return self._tokens.get(telegram_id)
+        # with self._lock:
+        #     return self._tokens.get(telegram_id)
+        data_json = self._client.get(self._get_key(telegram_id))
+
+        if data_json is None:
+            return None
+
+        try:
+            data = json.loads(data_json)
+            return TokenBundle(
+                access_token=data["access_token"],
+                refresh_token=data["refresh_token"],
+            )
+        except (KeyError, json.JSONDecodeError):
+            return None
 
     def clear_tokens(self, telegram_id: int) -> None:
         """
@@ -90,8 +125,14 @@ class TokenStorage:
         :rtype: None
         """
 
-        with self._lock:
-            self._tokens.pop(telegram_id, None)
+        # with self._lock:
+        #     self._tokens.pop(telegram_id, None)
+        self._client.delete(self._get_key(telegram_id))
 
 
-token_storage = TokenStorage()
+# token_storage = TokenStorage()
+token_storage = TokenStorage(
+    host=bot_settings.redis_host,
+    port=bot_settings.redis_port,
+    db=bot_settings.redis_db,
+)
