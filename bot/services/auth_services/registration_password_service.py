@@ -8,6 +8,7 @@
 from loguru import logger
 from telebot import TeleBot
 from telebot.types import Message
+from telebot.apihelper import ApiException
 
 from bot.api.api_client import api_client
 from bot.keyboards.main_menu_keyboard import build_main_menu_keyboard
@@ -32,10 +33,11 @@ def show_registration_password(bot: TeleBot, message: Message) -> None:
 
     password = message.text.strip() if message.text else ""
     telegram_id = message.from_user.id
+    chat_id = message.chat.id
 
     try:
-        bot.delete_message(message.chat.id, message.message_id)
-    except Exception as error:
+        bot.delete_message(chat_id, message.message_id)
+    except ApiException as error:
         logger.warning("Не удалось удалить сообщение с паролем: {}", error)
 
     if len(password) < 6:
@@ -45,12 +47,12 @@ def show_registration_password(bot: TeleBot, message: Message) -> None:
         )
         return
 
-    with bot.retrieve_data(telegram_id, message.chat.id) as data:
+    with bot.retrieve_data(telegram_id, chat_id) as data:
         full_name = data.get("full_name", message.from_user.full_name)
 
     username = message.from_user.username
     token_data = api_client.register_user(telegram_id, full_name, password, username)
-    bot.delete_state(telegram_id, message.chat.id)
+    bot.delete_state(telegram_id, chat_id)
 
     if token_data is None:
         bot.send_message(
