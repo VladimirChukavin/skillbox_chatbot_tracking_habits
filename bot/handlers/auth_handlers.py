@@ -6,7 +6,7 @@
 """
 
 from telebot import TeleBot
-from telebot.types import Message
+from telebot.types import Message, CallbackQuery
 
 from bot.services.auth_services.start_service import show_start
 from bot.services.auth_services.full_name_service import show_full_name
@@ -15,6 +15,7 @@ from bot.services.auth_services.registration_password_service import (
 )
 from bot.services.auth_services.login_command_service import show_login_command
 from bot.services.auth_services.login_password_service import show_login_password
+from bot.services.cancel_service import show_cancel
 from bot.states import LoginStates, RegistrationStates
 
 
@@ -97,3 +98,15 @@ def register_auth_handlers(bot: TeleBot) -> None:
         """
 
         show_login_password(bot, message)
+
+    @bot.message_handler(commands=["cancel"])
+    def handle_login_cancel(message: Message) -> None:
+        """
+        Обработчик команды /cancel.
+
+        :param message: Входящее сообщение от пользователя
+        :type message: Message
+        :return: Ничего не возвращает
+        :rtype: None
+        """
+        show_cancel(bot, message)
