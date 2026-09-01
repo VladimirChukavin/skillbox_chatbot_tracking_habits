@@ -35,5 +35,6 @@ def show_login_command(bot: TeleBot, message: Message) -> None:
     bot.send_message(
         telegram_id,
         "Введите пароль для получения токена на новую сессию.\n"
+        'Для отмены введите "cancel".\n'
         "⚠️ Сообщение будет удалено.",
     )
