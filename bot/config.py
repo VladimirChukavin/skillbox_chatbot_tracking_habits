@@ -48,5 +48,9 @@ class BotSettings(BaseSettings):
     http_proxy: str | None = None
     https_proxy: str | None = None
 
+    redis_host: str = "localhost"
+    redis_port: int = 6379
+    redis_db: int = 0
+
 
 bot_settings = BotSettings()
