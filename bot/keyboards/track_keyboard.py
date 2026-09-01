@@ -28,8 +28,9 @@ def build_track_keyboard(habit_id: int) -> InlineKeyboardMarkup:
             text="✅ Выполнено", callback_data=f"track_done:{habit_id}"
         ),
         InlineKeyboardButton(
-            text="❌ Не выполнено", callback_data=f"track_skip:{habit_id}"
+            text="✖️ Не выполнено", callback_data=f"track_skip:{habit_id}"
         ),
     )
+    keyboard.row(InlineKeyboardButton(text="❌ Отмена", callback_data="cancel"))
 
     return keyboard
