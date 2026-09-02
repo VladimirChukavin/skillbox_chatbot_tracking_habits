@@ -7,6 +7,7 @@
 """
 
 from telebot import TeleBot
+from loguru import logger
 
 from bot.api.api_client import api_client
 from bot.keyboards.habits_keyboard import build_habits_keyboard
@@ -34,7 +35,22 @@ def show_delete_habit(bot: TeleBot, telegram_id: int, chat_id: int) -> None:
     :rtype: None
     """
 
-    habits = api_client.list_habits(telegram_id)
+    try:
+        habits = api_client.list_habits(telegram_id)
+    except Exception as error:
+        logger.error(
+            "Ошибка при получении списка привычек (telegram_id={}): {}",
+            telegram_id,
+            error,
+        )
+        bot.send_message(
+            chat_id, "❌ Ошибка при получении списка привычек. Попробуйте позже."
+        )
+        return
+
+    if habits is None:
+        bot.send_message(chat_id, "❌ Нет удалось получить список привычек.")
+        return
 
     if not habits:
         bot.send_message(chat_id, "❌ Нет привычек для удаления.")
