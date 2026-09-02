@@ -71,12 +71,22 @@ def show_habit_new_value(bot: TeleBot, message: Message) -> None:
             return
 
     update_payload = {field: value}
-    updated = api_client.update_habit(telegram_id, habit_id, update_payload)
-    bot.delete_state(telegram_id, message.chat.id)
+    updated = None
+
+    try:
+        updated = api_client.update_habit(telegram_id, habit_id, update_payload)
+    except Exception as error:
+        logger.error("Ошибка при обновлении привычки: {}", error)
+        bot.send_message(
+            telegram_id,
+            "❌ Произошла ошибка при обновлении привычки. Попробуйте позже.",
+        )
 
     if updated is None:
         bot.send_message(telegram_id, "❌ Не удалось обновить привычку.")
         return
+
+    bot.delete_state(telegram_id, message.chat.id)
 
     logger.bind(sent_message=True).info(
         "Привычка {} обновлена пользователем {}", habit_id, telegram_id
