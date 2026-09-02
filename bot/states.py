@@ -94,3 +94,13 @@ class DeleteHabitsStates(StatesGroup):
 
     waiting_for_habit_choice = State()
     waiting_for_deletion_confirmation = State()
+
+
+class StatsStates(StatesGroup):
+    """
+    Состояния процесса вывода статистики.
+
+    :param waiting_for_habit_choice: Ожидание выбора привычки
+    """
+
+    waiting_for_habit_choice = State()
