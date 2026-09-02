@@ -33,6 +33,15 @@ def show_habit_target(bot: TeleBot, message: Message) -> None:
 
     target_description = message.text.strip() if message.text else ""
 
+    if target_description and target_description != "-":
+        if len(target_description) > 500:
+            bot.send_message(
+                message.from_user.id,
+                "⚠️ Описание слишком длинное. Максимальная длина 500 символов."
+                "Попробуйте ещё раз:",
+            )
+            return
+
     with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
         data["target_description"] = (
             None if target_description == "-" else target_description
