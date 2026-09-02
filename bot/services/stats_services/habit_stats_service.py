@@ -6,10 +6,12 @@
 Если список пуст — уведомляет пользователя.
 """
 
+from loguru import logger
 from telebot import TeleBot
 
 from bot.api.api_client import api_client
 from bot.keyboards.habits_keyboard import build_habits_keyboard
+from bot.states import StatsStates
 
 
 def show_habit_stats(bot: TeleBot, telegram_id: int, chat_id: int) -> None:
@@ -32,11 +34,24 @@ def show_habit_stats(bot: TeleBot, telegram_id: int, chat_id: int) -> None:
     :rtype: None
     """
 
-    habits = api_client.list_habits(telegram_id)
+    try:
+        habits = api_client.list_habits(telegram_id)
+    except Exception as error:
+        logger.error(
+            "Ошибка при получении списка привычек (telegram_id={}): {}",
+            telegram_id,
+            error,
+        )
+        bot.send_message(
+            chat_id, "❌ Ошибка при получении списка привычек. Попробуйте позже."
+        )
+        return
 
     if not habits:
         bot.send_message(telegram_id, "❌ Нет привычек для просмотра статистики.")
         return
+
+    bot.set_state(telegram_id, StatsStates.waiting_for_habit_choice, chat_id)
 
     keyboard = build_habits_keyboard(habits, "stats", with_cancel=True)
 
