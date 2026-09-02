@@ -6,6 +6,7 @@
 Если список пуст — уведомляет пользователя.
 """
 
+from loguru import logger
 from telebot import TeleBot
 
 from bot.api.api_client import api_client
@@ -34,7 +35,18 @@ def show_set_reminder(bot: TeleBot, telegram_id: int, chat_id: int) -> None:
     :rtype: None
     """
 
-    habits = api_client.list_habits(telegram_id)
+    try:
+        habits = api_client.list_habits(telegram_id)
+    except Exception as error:
+        logger.error(
+            "Ошибка при получении списка привычек (telegram_id={}): {}",
+            telegram_id,
+            error,
+        )
+        bot.send_message(
+            chat_id, "❌ Ошибка при получении списка привычек. Попробуйте позже."
+        )
+        return
 
     if not habits:
         bot.send_message(telegram_id, "❌ Нет привычек для установки напоминания.")
