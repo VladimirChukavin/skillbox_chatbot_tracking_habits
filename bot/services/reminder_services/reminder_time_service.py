@@ -61,19 +61,28 @@ def show_reminder_time(bot: TeleBot, message: Message) -> None:
     with bot.retrieve_data(telegram_id, message.chat.id) as data:
         habit_id = data.get("reminder_habit_id")
 
-    bot.delete_state(telegram_id, message.chat.id)
-
     if habit_id is None:
-        bot.send_message(telegram_id, "Ошибка состояния. Начните заново /set_reminder")
+        bot.send_message(
+            telegram_id, "❌ Ошибка состояния. Начните заново /set_reminder"
+        )
+        bot.delete_state(telegram_id, message.chat.id)
         return
 
-    updated = api_client.update_habit(
-        telegram_id, habit_id, {"reminder_time": reminder_time}
-    )
+    updated = None
+
+    try:
+        updated = api_client.update_habit(
+            telegram_id, habit_id, {"reminder_time": reminder_time}
+        )
+    except Exception as error:
+        logger.error("Ошибка при установке напоминания: {}", error)
+        bot.send_message(telegram_id, "❌ Произошла ошибка. Попробуйте позже.")
 
     if updated is None:
         bot.send_message(telegram_id, "❌ Не удалось установить напоминание.")
         return
+
+    bot.delete_state(telegram_id, message.chat.id)
 
     logger.bind(sent_message=True).info(
         "Установлено напоминание {} для привычки {} пользователя {}",
