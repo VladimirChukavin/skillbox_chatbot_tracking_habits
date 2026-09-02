@@ -66,15 +66,24 @@ def show_habit_target_days(bot: TeleBot, message: Message) -> None:
             "target_days": target_days,
         }
 
-    bot.delete_state(telegram_id, message.chat.id)
+    created = None
 
-    created = api_client.create_habit(telegram_id, habit_data)
+    try:
+        created = api_client.create_habit(telegram_id, habit_data)
+    except Exception as error:
+        logger.error("Ошибка при создании привычки: {}", error)
+        bot.send_message(
+            telegram_id, "❌ Произошла ошибка при создании привычки. Попробуйте позже."
+        )
+        return
 
     if created is None:
         bot.send_message(
-            telegram_id, "❌ Не удалось создать привычку. Вы авторизованы? /login"
+            telegram_id, "❌ Не удалось создать привычку. Проверьте введенные данные."
         )
         return
+
+    bot.delete_state(telegram_id, message.chat.id)
 
     logger.bind(sent_message=True).info(
         "Создана привычка {} для пользователя {}", created.get("title"), telegram_id
