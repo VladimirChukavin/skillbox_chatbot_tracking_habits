@@ -51,7 +51,9 @@ def show_confirm_delete_habit_choice(bot: TeleBot, call: CallbackQuery) -> None:
         bot.send_message(telegram_id, "Ошибка: не удалось определить привычку.")
         return
 
-    if api_client.delete_habit(telegram_id, habit_id):
+    result = api_client.delete_habit(telegram_id, habit_id)
+
+    if result:
         bot.delete_state(telegram_id, call.message.chat.id)
         bot.edit_message_text(
             "✅ Привычка удалена.",
@@ -60,4 +62,5 @@ def show_confirm_delete_habit_choice(bot: TeleBot, call: CallbackQuery) -> None:
         )
         logger.info("Привычка {} удалена пользователем {}", habit_id, telegram_id)
     else:
+        logger.error("Ошибка удаления привычки {}: {}", habit_id, result)
         bot.answer_callback_query(call.id, "❌ Не удалось удалить привычку.")
