@@ -10,7 +10,6 @@
 from telebot import TeleBot
 from telebot.types import CallbackQuery
 
-from bot.api.api_client import api_client
 from bot.states import EditHabitStates
 
 
@@ -19,14 +18,7 @@ def show_habit_field_choice(bot: TeleBot, call: CallbackQuery) -> None:
     Обработать выбор поля привычки для редактирования.
 
     Извлекает название поля из callback-данных формата
-    "field:<field_name>". Если выбрано поле "delete" —
-    извлекает идентификатор редактируемой привычки из FSM-данных
-    (ключ "editing_habit_id") и отправляет запрос на удаление
-    через API-клиент. При успехе сбрасывает FSM-состояние и
-    заменяет текст сообщения на уведомление об удалении, при
-    неудаче — отправляет сообщение об ошибке.
-
-    Для остальных полей сохраняет выбранное поле в FSM-данных
+    "field:<field_name>". Сохраняет выбранное поле в FSM-данных
     под ключом "editing_field", переводит пользователя в
     состояние ожидания ввода нового значения
     (EditHabitStates.waiting_for_new_value) и заменяет текст
@@ -41,16 +33,23 @@ def show_habit_field_choice(bot: TeleBot, call: CallbackQuery) -> None:
     :rtype: None
     """
 
-    field = call.data.split(":")[1]
     telegram_id = call.from_user.id
+    chat_id = call.message.chat.id
+    parts = call.data.split(":")
 
-    with bot.retrieve_data(telegram_id, call.message.chat.id) as data:
+    if len(parts) != 2 or parts[0] != "field":
+        bot.answer_callback_query(call.id, "Ошибка: некорректная команда.")
+        return
+
+    field = parts[1]
+
+    with bot.retrieve_data(telegram_id, chat_id) as data:
         data["editing_field"] = field
 
     bot.set_state(
         telegram_id,
         EditHabitStates.waiting_for_new_value,
-        call.message.chat.id,
+        chat_id,
     )
     field_labels = {
         "title": "новое название",
@@ -60,6 +59,6 @@ def show_habit_field_choice(bot: TeleBot, call: CallbackQuery) -> None:
     }
     bot.edit_message_text(
         f"Введите {field_labels.get(field, 'новое значение')}:",
-        chat_id=call.message.chat.id,
+        chat_id=chat_id,
         message_id=call.message.message_id,
     )
