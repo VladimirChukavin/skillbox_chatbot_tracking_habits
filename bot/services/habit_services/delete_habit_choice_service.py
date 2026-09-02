@@ -10,6 +10,7 @@
 from telebot import TeleBot
 from telebot.types import CallbackQuery
 
+from bot.api.api_client import api_client
 from bot.keyboards.delete_confirmation_keyboard import (
     build_delete_confirmation_keyboard,
 )
@@ -36,19 +37,27 @@ def show_delete_habit_choice(bot: TeleBot, call: CallbackQuery) -> None:
 
     habit_id = int(call.data.split(":")[1])
     telegram_id = call.from_user.id
+    chat_id = call.message.chat.id
+    habit_data = api_client.get_habit(telegram_id, habit_id)
 
-    with bot.retrieve_data(telegram_id, call.message.chat.id) as data:
+    if habit_data is None:
+        bot.send_message(telegram_id, "❌ Привычка не найдена или произошла ошибка")
+        return
+
+    habit_title = habit_data.get("title", f"Привычка #{habit_id}")
+
+    with bot.retrieve_data(telegram_id, chat_id) as data:
         data["habit_id_to_delete"] = habit_id
 
     bot.set_state(
         telegram_id,
         DeleteHabitsStates.waiting_for_deletion_confirmation,
-        call.message.chat.id,
+        chat_id,
     )
 
     bot.edit_message_text(
-        f'Вы уверены, что хотите удалить привычку "{habit_id}"?',
-        chat_id=call.message.chat.id,
+        f'Вы уверены, что хотите удалить привычку "{habit_title}"?',
+        chat_id=chat_id,
         message_id=call.message.message_id,
         reply_markup=build_delete_confirmation_keyboard(),
     )
