@@ -34,20 +34,27 @@ def show_edit_habit_choice(bot: TeleBot, call: CallbackQuery) -> None:
     :rtype: None
     """
 
-    habit_id = int(call.data.split(":")[1])
     telegram_id = call.from_user.id
+    chat_id = call.message.chat.id
+    parts = call.data.split(":")
 
-    with bot.retrieve_data(telegram_id, call.message.chat.id) as data:
+    if len(parts) != 2 or parts[0] != "edit":
+        bot.answer_callback_query(call.id, "Ошибка: некорректная команда.")
+        return
+
+    habit_id = int(parts[1])
+
+    with bot.retrieve_data(telegram_id, chat_id) as data:
         data["editing_habit_id"] = habit_id
 
     bot.set_state(
         telegram_id,
         EditHabitStates.waiting_for_field_choice,
-        call.message.chat.id,
+        chat_id,
     )
     bot.edit_message_text(
         "Что вы хотите изменить?",
-        chat_id=call.message.chat.id,
+        chat_id=chat_id,
         message_id=call.message.message_id,
         reply_markup=build_edit_fields_keyboard(),
     )
