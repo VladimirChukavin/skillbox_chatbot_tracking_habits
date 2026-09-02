@@ -36,12 +36,19 @@ def show_stats_choice(bot: TeleBot, call: CallbackQuery) -> None:
     :rtype: None
     """
 
-    habit_id = int(call.data.split(":")[1])
     telegram_id = call.from_user.id
+    parts = call.data.split(":")
+
+    if len(parts) != 2 or parts[0] != "stats":
+        bot.answer_callback_query(call.id, "❌ Ошибка: некорректная команда.")
+        return
+
+    habit_id = int(parts[1])
+
     stats = api_client.get_habit_stats(telegram_id, habit_id)
 
     if stats is None:
-        bot.answer_callback_query(call.id, "Не удалось получить статистику.")
+        bot.answer_callback_query(call.id, "❌ Ошибка: не удалось получить статистику.")
         return
 
     today_mark = (
