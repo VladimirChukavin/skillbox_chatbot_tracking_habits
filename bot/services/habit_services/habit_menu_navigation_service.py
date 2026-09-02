@@ -44,25 +44,34 @@ def show_habit_menu_navigation(bot: TeleBot, call: CallbackQuery) -> None:
     :rtype: None
     """
 
-    action = call.data.split(":")[1]
     telegram_id = call.from_user.id
     chat_id = call.message.chat.id
 
+    parts = call.data.split(":")
+
+    if len(parts) != 2 or parts[0] != "menu":
+        logger.warning("Некорректный формат callback-данных: {}", call.data)
+        bot.answer_callback_query(call.id, "Ошибка: некорректная команда.")
+        return
+
+    action = parts[1]
+
     commands_map = {
-        "add": (show_add_habit, bot, telegram_id, chat_id),
-        "list": (show_habits_list, bot, telegram_id, chat_id),
-        "edit": (show_edit_habit, bot, telegram_id, chat_id),
-        "stats": (show_habit_stats, bot, telegram_id, chat_id),
-        "track": (show_track_habit, bot, telegram_id, chat_id),
-        "reminder": (show_set_reminder, bot, telegram_id, chat_id),
-        "delete": (show_delete_habit, bot, telegram_id, chat_id),
+        "add": show_add_habit,
+        "list": show_habits_list,
+        "edit": show_edit_habit,
+        "stats": show_habit_stats,
+        "track": show_track_habit,
+        "reminder": show_set_reminder,
+        "delete": show_delete_habit,
     }
 
-    command_data = commands_map.get(action)
+    handler = commands_map.get(action)
 
-    if command_data is None:
+    if handler is None:
         logger.warning("Неизвестная команда меню: {}", action)
+        bot.answer_callback_query(call.id, "Ошибка: неизвестная команда.")
+        bot.send_message(chat_id, "Неизвестная команда. Выберите команду из меню.")
     else:
-        command_data[0](command_data[1], command_data[2], command_data[3])
-
-    bot.answer_callback_query(call.id)
+        handler(bot, telegram_id, chat_id)
+        bot.answer_callback_query(call.id)
