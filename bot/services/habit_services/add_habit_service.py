@@ -6,6 +6,7 @@
 ожидания ввода названия (первый шаг формы).
 """
 
+from loguru import logger
 from telebot import TeleBot
 
 from bot.states import AddHabitStates
@@ -34,6 +35,12 @@ def show_add_habit(bot: TeleBot, telegram_id: int, chat_id: int) -> None:
     """
 
     if token_storage.get_tokens(telegram_id) is None:
+        bot.send_message(
+            chat_id, "❌ Вы не авторизованы. Введите /login для доступа к боту."
+        )
+        logger.warning(
+            "Попытка добавить привычку без авторизации (telegram_id={})", telegram_id
+        )
         return
 
     bot.set_state(telegram_id, AddHabitStates.waiting_for_title, chat_id)
