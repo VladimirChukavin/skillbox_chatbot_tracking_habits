@@ -29,7 +29,13 @@ def show_track_choice(bot: TeleBot, call: CallbackQuery) -> None:
     :rtype: None
     """
 
-    habit_id = int(call.data.split(":")[1])
+    parts = call.data.split(":")
+
+    if len(parts) != 2 or parts[0] != "track":
+        bot.answer_callback_query(call.id, "❌ Ошибка: некорректная команда.")
+        return
+
+    habit_id = int(parts[1])
 
     bot.edit_message_text(
         "Отметьте выполнение:",
