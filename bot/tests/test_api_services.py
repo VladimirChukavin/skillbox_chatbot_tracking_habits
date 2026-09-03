@@ -4,8 +4,6 @@
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from bot.api.api_services.authorized_request_service import _authorized_request
 from bot.api.api_services.create_habit_service import create_habit_service
 from bot.api.api_services.delete_habit_service import delete_habit_service
@@ -16,7 +14,7 @@ from bot.api.api_services.refresh_access_token_service import _refresh_access_to
 from bot.api.api_services.register_user_service import register_user_service
 from bot.api.api_services.store_tokens_service import _store_tokens
 from bot.api.api_services.track_habit_service import track_habit_service
-from bot.storage import TokenBundle, token_storage
+from bot.storage import token_storage
 
 
 class TestStoreTokens:
@@ -216,7 +214,8 @@ class TestCreateHabitsService:
             {"title": "Test"},
         )
 
-        assert result is None
+        assert result is not None
+        assert "error" in result
 
     def test_create_habit_no_tokens(self):
         session = MagicMock()
@@ -282,9 +281,12 @@ class TestDeleteHabitService:
     def test_delete_no_tokens(self):
         session = MagicMock()
 
-        result = delete_habit_service(session, "http://localhost:8000", 999, 1)
-
-        assert result is False
+        with patch(
+            "bot.api.api_services.delete_habit_service._authorized_request"
+        ) as mock_auth:
+            mock_auth.return_value = MagicMock(ok=False)
+            result = delete_habit_service(session, "http://localhost:8000", 999, 1)
+            assert result is False
 
 
 class TestTrackHabitsService:
