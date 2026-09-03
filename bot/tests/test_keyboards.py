@@ -70,10 +70,11 @@ class TestTrackKeyboard:
         kb = build_track_keyboard(habit_id=1)
         assert isinstance(kb, InlineKeyboardMarkup)
 
-    def test_has_two_buttons(self):
+    def test_has_two_row_buttons(self):
         kb = build_track_keyboard(habit_id=1)
-        assert len(kb.keyboard) == 1
+        assert len(kb.keyboard) == 2
         assert len(kb.keyboard[0]) == 2
+        assert len(kb.keyboard[1]) == 1
 
     def test_done_callback(self):
         kb = build_track_keyboard(habit_id=42)
@@ -89,20 +90,20 @@ class TestEditFieldsKeyboard:
         kb = build_edit_fields_keyboard()
         assert isinstance(kb, InlineKeyboardMarkup)
 
-    def test_has_five_buttons(self):
+    def test_has_four_buttons(self):
         kb = build_edit_fields_keyboard()
         all_callbacks = [btn.callback_data for row in kb.keyboard for btn in row]
-        assert len(all_callbacks) == 5
+        assert len(all_callbacks) == 4
 
     def test_contains_title_field(self):
         kb = build_edit_fields_keyboard()
         all_callbacks = [btn.callback_data for row in kb.keyboard for btn in row]
         assert "field:title" in all_callbacks
 
-    def test_contains_delete_field(self):
+    def test_contains_target_days_field(self):
         kb = build_edit_fields_keyboard()
         all_callbacks = [btn.callback_data for row in kb.keyboard for btn in row]
-        assert "field:delete" in all_callbacks
+        assert "field:target_days" in all_callbacks
 
     def test_all_callbacks_start_with_field(self):
         kb = build_edit_fields_keyboard()
