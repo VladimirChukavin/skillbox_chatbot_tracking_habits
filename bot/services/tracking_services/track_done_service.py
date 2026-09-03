@@ -38,19 +38,29 @@ def show_track_done(bot: TeleBot, call: CallbackQuery) -> None:
     :rtype: None
     """
 
-    habit_id = int(call.data.split(":")[1])
     telegram_id = call.from_user.id
+    chat_id = call.message.chat.id
+
+    parts = call.data.split(":")
+
+    if len(parts) != 2 or parts[0] != "track_done":
+        bot.answer_callback_query(call.id, "❌ Ошибка: некорректная команда.")
+        return
+
+    habit_id = int(parts[1])
+
     result = api_client.track_habit(telegram_id, habit_id, is_completed=True)
-    bot.delete_state(telegram_id, call.message.chat.id)
 
     if result is None:
-        bot.answer_callback_query(call.id, "Ошибка при отметке")
+        bot.answer_callback_query(call.id, "❌ Ошибка при отметке")
         return
+
+    bot.delete_state(telegram_id, chat_id)
 
     progress = f"{result['completed_count']}/{result['target_days']}"
     bot.edit_message_text(
         f"✅ Отмечено как выполненное! Прогресс: {progress}",
-        chat_id=call.message.chat.id,
+        chat_id=chat_id,
         message_id=call.message.message_id,
     )
     logger.bind(sent_message=True).info(
