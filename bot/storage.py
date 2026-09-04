@@ -1,15 +1,14 @@
 """
-Потокобезопасное хранилище токенов авторизации.
+Потокобезопасное хранилище токенов авторизации в Redis.
 
 Содержит класс для хранения пары токенов (access и refresh) и
-класс, обеспечивающий конкурентный доступ к словарю токенов
-через threading.Lock. Токены хранятся в памяти процесса и
-привязаны к идентификатору Telegram-пользователя.
+класс, обеспечивающий конкурентный доступ к Redis-хранилищу.
+Токены привязаны к идентификатору Telegram-пользователя и
+сохраняются в Redis с ограниченным временем жизни.
 """
 
 import json
 
-# import threading
 from dataclasses import dataclass, asdict
 
 import redis
@@ -32,40 +31,48 @@ class TokenBundle:
 
 class TokenStorage:
     """
-    Потокобезопасное хранилище токенов пользователей в памяти.
+    Хранилище токенов пользователей в Redis.
 
-    Хранит токены в словаре, ключами которого выступают
-    идентификаторы Telegram-пользователей. Доступ к словарю
-    защищён threading.Lock, что обеспечивает безопасность
-    при конкурентных вызовах из разных потоков (например,
-    обработчиков бота и планировщика напоминаний).
+    Хранит токены как JSON-документы с ключами token:{telegram_id}.
+    Каждая запись имеет TTL для автоматического удаления просроченных токенов.
+    Redis гарантирует потокобезопасность операций, дополнительная блокировка
+    не требуется.
 
-    :ivar _tokens: Словарь токенов, ключ — telegram_id, значение — TokenBundle
-    :ivar _lock: Блокировка для потокобезопасного доступа
+    :ivar _client: Подключение к Redis
+    :ivar _prefix: Префикс ключей в Redis (по умолчанию "token:")
     """
 
-    def __init__(self, host: str, port: int, db: int) -> None:
+    def __init__(self, host: str, password: str, db: int, port: int) -> None:
         """
-        Инициализировать пустое хранилище токенов.
+        Инициализировать хранилище токенов с подключением к Redis.
 
-        Создаёт пустой словарь _tokens и блокировку
-        threading.Lock для защиты конкурентного доступа.
+        Создаёт клиент с включенным декодированием ответов
+        в строки (decode_responses), чтобы не парсить вручную.
 
+        :param host: Хост Redis
+        :type host: str
+        :param password: Пароль Redis (может быть пустой строкой)
+        :type password: str
+        :param db: Номер базы данных Redis
+        :type db: int
+        :param port: Порт Redis
+        :type port: int
         :return: Ничего не возвращает
         :rtype: None
         """
 
-        # self._tokens: dict[int, TokenBundle] = {}
-        # self._lock = threading.Lock()
         self._client = redis.Redis(
             host=host,
-            port=port,
+            password=password,
             db=db,
+            port=port,
             decode_responses=True,
         )
         self._prefix = "token:"
 
     def _get_key(self, telegram_id: int) -> str:
+        """Сформировать ключ Redis для заданного telegram_id."""
+
         return f"{self._prefix}{telegram_id}"
 
     def save_tokens(
@@ -73,25 +80,28 @@ class TokenStorage:
     ) -> None:
         """
         Сохранить или перезаписать токены пользователя.
+        Сериализует TokenBundle в JSON и сохраняет в Redis с TTL.
+        При повторном вызове для того же пользователя старые токены
+        перезаписываются.
 
         :param telegram_id: Идентификатор Telegram-пользователя
         :type telegram_id: int
         :param bundle: Контейнер с access и refresh токенами
         :type bundle: TokenBundle
-        :param ttl_seconds: Срок действия токенов
+        :param ttl_seconds: Срок действия токенов (30 дней)
         :type ttl_seconds: int
         :return: Ничего не возвращает
         :rtype: None
         """
 
-        # with self._lock:
-        #     self._tokens[telegram_id] = bundle
         data = asdict(bundle)
         self._client.setex(self._get_key(telegram_id), ttl_seconds, json.dumps(data))
 
     def get_tokens(self, telegram_id: int) -> TokenBundle | None:
         """
         Получить токены пользователя.
+        Читает JSON-документ из Redis и десериализует его в TokenBundle.
+        Возвращает None, если ключ не существует или данные повреждены.
 
         :param telegram_id: Идентификатор Telegram-пользователя
         :type telegram_id: int
@@ -99,8 +109,6 @@ class TokenStorage:
         :rtype: TokenBundle | None
         """
 
-        # with self._lock:
-        #     return self._tokens.get(telegram_id)
         data_json = self._client.get(self._get_key(telegram_id))
 
         if data_json is None:
@@ -125,14 +133,12 @@ class TokenStorage:
         :rtype: None
         """
 
-        # with self._lock:
-        #     self._tokens.pop(telegram_id, None)
         self._client.delete(self._get_key(telegram_id))
 
 
-# token_storage = TokenStorage()
 token_storage = TokenStorage(
     host=bot_settings.redis_host,
-    port=bot_settings.redis_port,
+    password=bot_settings.redis_password,
     db=bot_settings.redis_db,
+    port=bot_settings.redis_port,
 )
