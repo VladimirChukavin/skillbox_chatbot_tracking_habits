@@ -12,12 +12,24 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app_network
+
+  redis:
+    image: redis:8.10.1-alpine
+    container_name: habit_redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    depends_on:
+      database:
+        condition: service_healthy
     networks:
       - app_network
 
@@ -54,6 +66,7 @@ services:
       - ./bot:/app/bot
       - bot_logs:/app/logs
     depends_on:
+      - redis
       - backend
     networks:
       - app_network
