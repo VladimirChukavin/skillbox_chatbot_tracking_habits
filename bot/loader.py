@@ -61,4 +61,5 @@ def create_bot() -> TeleBot:
     register_tracking_handlers(bot)
     register_help_handler(bot)
     register_unknown_handlers(bot)
+
     return bot
