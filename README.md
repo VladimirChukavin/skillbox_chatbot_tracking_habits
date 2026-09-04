@@ -25,7 +25,12 @@ Telegram-бот для отслеживания и формирования пр
 │  │   данных   │      │ (FastAPI) │      │(Telegram)│  │
 │  │(PostgreSQL)│      │           │      │          │  │
 │  └────────────┘      └───────────┘      └──────────┘  │
-│                                                       │
+│                                              │        │
+│                                       ┌──────┴─────┐  │
+│                                       │ Хранилище  │  │
+│                                       │  токенов   │  │
+│                                       │  (Redis)   │  │
+│                                       └────────────┘  │
 └───────────────────────────────────────────────────────┘
 ```
 
@@ -40,7 +45,7 @@ Telegram-бот для отслеживания и формирования пр
 - **pyTelegramBotAPI** для взаимодействия с Telegram API
 - **FSM (Машина состояний)** для организации пошаговых диалогов с пользователем
 - **APScheduler** для отправки напоминаний по расписанию
-- **Token Storage** для хранения JWT-токенов пользователей в памяти
+- **Token Storage** для хранения JWT-токенов пользователей в Redis-хранилище
 - **Inline-клавиатуры** для удобной навигации
 
 ### Хранилище данных
@@ -53,6 +58,7 @@ Telegram-бот для отслеживания и формирования пр
 | Backend          | FastAPI, Uvicorn, SQLAlchemy, Alembic   |
 | Bot              | pyTelegramBotAPI, APScheduler, requests |
 | Database         | PostgreSQL, asyncpg                     |
+| Token storage    | Redis                                   |
 | Auth             | python-jose (JWT), bcrypt               |
 | Logging          | Loguru                                  |
 | Containerization | Docker, Docker Compose                  |
@@ -147,6 +153,12 @@ HTTPS_PROXY=socks5h://host.docker.internal:9150
 
 # Debug
 DEBUG=True
+
+# Redis
+REDIS_HOST=host
+REDIS_PASSWORD=your_secure_password
+REDIS_DB=0
+REDIS_PORT=6379
 ```
 
 4. **Запустить проект через Docker Compose:**
@@ -271,6 +283,10 @@ docker compose up --build
 | `HTTP_PROXY`                  | —                   | HTTP-прокси (опционально)          |
 | `HTTPS_PROXY`                 | —                   | HTTPS-прокси (опционально)         |
 | `DEBUG`                       | False               | Режим отладки                      |
+| `REDIS_HOST`                  | localhost           | Хост Redis                         |
+| `REDIS_PASSWORD`              | -                   | Пароль Redis                       |
+| `REDIS_DB`                    | 0                   | Номер базы данных в Redis          |
+| `REDIS_PORT`                  | 6379                | Порт Redis                         |
 
 ## 📝 Логирование
 
