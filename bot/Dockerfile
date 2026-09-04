@@ -9,6 +9,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir \
     pyTelegramBotAPI==4.36.0 \
     requests[socks]==2.34.2 \
+    redis==8.1.0 \
     loguru==0.7.3 \
     APScheduler==3.11.3 \
     pydantic-settings==2.14.2 \
