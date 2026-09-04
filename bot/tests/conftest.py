@@ -8,6 +8,10 @@ os.environ.setdefault("TELEGRAM_TOKEN", "test-token")
 os.environ.setdefault("API_BASE_URL", "https://localhost:8000")
 os.environ.setdefault("REQUEST_TIMEOUT", "15")
 os.environ.setdefault("DEBUG", "false")
+os.environ.setdefault("REDIS_HOST", "localhost")
+os.environ.setdefault("REDIS_PASSWORD", "")
+os.environ.setdefault("REDIS_PORT", "6379")
+os.environ.setdefault("REDIS_DB", "0")
 
 from unittest.mock import MagicMock  # noqa: E402
 
